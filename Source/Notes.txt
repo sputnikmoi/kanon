@@ -1,0 +1,28 @@
+/*******************************************************************************
+Mit Math-Ml scheint es endlich einen Weg zu geben//
+qtmmlwidget-2.4_1-opensource.tar.gz //
+*******************************************************************************/
+classes {
+	CWndMain : QMainWindow
+	CGuiMatrix : QObject (singleton)
+	CMatrixTableView : QTableView (setIndexWidget(mmlWdgtRow))
+	CMmlWdgtRow : CMmlWdgtBase
+	CMmlWdgtBase : QWidget
+}
+Qt4: Odysse: Bauen unter Windows { -
+	Command: d:\qt\Qt-4.7.3-dev-lite-msvc2010-rs\Qt-4.7.3-dev-lite-msvc2010-rs\bin\qmake.exe -o Makefile Kanon.pro
+	Grundsaetzlich nur STATISCH gelinktes Qt verwenden, sonst Dll-Hoelle nach Installation.
+	In Qt-4.7.3-dev-msvc2010-rds steht das "s" fuer STATIC.
+	Das hat dann doch geklappt: set QTDIR=D:\qt\Qt-4.7.3-dev-msvc2010-rds
+	VIELLEICHT wuerde es dann auch mit MinGw und Qt5 klappen?
+}
+Qt5 und MinGw {
+	Qt5.14.1 bringt in D:\Qt\Tools\mingw730_64\bin mingw schon mit!//
+	Dies ist allerdings dynamisch gelinkt, dlls und plugins muessen ins Setup.
+	Environment {//
+		set MINGW_BIN=D:\Qt\Tools\mingw730_64\bin
+		set QTDIR=D:\Qt\5.14.1\mingw73_64
+		path=%path%;%QTDIR%\bin;%MINGW_BIN%
+	}
+}
+

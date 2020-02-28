@@ -1,0 +1,7 @@
+<!DOCTYPE RCC>
+<RCC version="1.0">
+<qresource>
+    <file>images/Kanon16.png</file>
+    <file>images/Kanon32.png</file>
+</qresource>
+</RCC>
