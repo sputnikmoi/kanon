@@ -145,7 +145,6 @@ CWndMain::CWndMain(QWidget *parent)
 		m_LoCoordField->addWidget(new CMmlWdgtCoordField(this, eField, fx), 1, 1 + fx);
 	}
 	updateCoordFields();
-	//loV->addWidget(grpBox);
 	addSeparator(loV);
 	// Operators//
 	QBoxLayout* loOperators{new QHBoxLayout};
@@ -161,17 +160,13 @@ CWndMain::CWndMain(QWidget *parent)
 	m_Operators.push_back(new CMmlWdgtOperator(this, bullet));
 	m_Operators.push_back(new CMmlWdgtOperator(this, bra));
 	m_Operators.push_back(new CMmlWdgtOperator(this, ket));
-	//m_Operators.push_back(new CMmlWdgtOperator(this, integral, 1));
-	//m_Operators.push_back(new CMmlWdgtOperator(this, delta, 1));
-	for (size_t ox{}; ox < m_Operators.size(); ox++)
+	for (const auto& wdgtOp : m_Operators)
 	{
-		loOperators->addWidget(m_Operators.at(ox));
+		loOperators->addWidget(wdgtOp);
 	}
 	loOperators->addStretch(40000);
 	addSeparator(loV);
-	// ------------------- -
 	new CGuiMatrix(loV, this);
-	//QToolBar* tool_bar(new QToolBar(this)); addToolBar(tool_bar);
 	// Menu
 	createMenus(signMap);
 	connect(signMap, SIGNAL(mapped(int)), this, SLOT(onSignMap(int)));
@@ -660,7 +655,7 @@ void CWndMain::onSignMap(int id)
 			break;
 		case idFileNew:
 			if (makeClean())
-			{	// Add a default field
+			{	// Add a default field.
 				model().setGlyphCoordField(model().numField(), eField, CGlyphCoordField(phi, "Field_0"));
 				clear();
 				updateMml();
@@ -697,7 +692,7 @@ void CWndMain::onSignMap(int id)
 		case idHelpAbout:
 			QMessageBox::about(this, "About ...", ("Version: " + getVersionString()).c_str());
 			break;
-		case idBtnHelp: // FallThrough
+		case idBtnHelp: [[fallthrough]];
 		case idHelpHelp:
 			help().show("Purpose.htm");
 			break;

@@ -162,14 +162,14 @@ void CModelData::sort(int column, Qt::SortOrder order)
 	std::vector <CModelData>::iterator it0(array().begin()), itn(array().end());
 	switch (column)
 	{
-	case colDimension: std::stable_sort(it0, itn, ltDimension); break;
-	case colFlags: std::stable_sort(it0, itn, ltFlags); break;
-	case colName: std::stable_sort(it0, itn, ltName); break;
+	case colDimension:  std::stable_sort(it0, itn, ltDimension); break;
+	case colFlags:      std::stable_sort(it0, itn, ltFlags); break;
+	case colName:       std::stable_sort(it0, itn, ltName); break;
 	case colNormalVect: std::stable_sort(it0, itn, ltNormalVect); break;
-	case colNumCoord: std::stable_sort(it0, itn, ltNumCoord); break;
-	case colNumField: std::stable_sort(it0, itn, ltNumField); break;
-	case colOrder: std::stable_sort(it0, itn, ltOrder); break;
-	case colTag: std::stable_sort(it0, itn, ltTag); break;
+	case colNumCoord:   std::stable_sort(it0, itn, ltNumCoord); break;
+	case colNumField:   std::stable_sort(it0, itn, ltNumField); break;
+	case colOrder:      std::stable_sort(it0, itn, ltOrder); break;
+	case colTag:        std::stable_sort(it0, itn, ltTag); break;
 	default: break;
   }
 }
@@ -298,7 +298,7 @@ string CModelData::flags() const
 *******************************************************************************/
 void CModelData::dump() const
 {
-	fprintf(stderr, "--dump()--\n");/**/
+	//fprintf(stderr, "--dump()--\n");
 	//	for (size_t cx(0); cx < m_Coords.size(); cx++) {
 	//		m_Coords[cx].dump();
 	//	}
@@ -325,11 +325,11 @@ double CModelData::getDimensionOfCouplingConst(double* dCanDim, size_t tx) const
 {
 	*dCanDim = -1.0;
 	if (m_CanDim.size() != 1 + numTerm())
-	{	// m_CanDim[] must contain dimensions of coords/fields, then coupling constants
+	{	// m_CanDim[] must contain dimensions of coords/fields, then coupling constants.
 		return -1.0;
 	}
 	if (tx < modelOrder())
-	{	// Use explicitely selected coupling constant
+	{	// Use explicitely selected coupling constant.
 		tx = modelOrder();
 	}
 	else
@@ -355,7 +355,7 @@ QString CModelData::printDimensionOfCouplingConst(size_t tx) const
 	}
 	double dCanDim;
 	const double constCanDim(getDimensionOfCouplingConst(&dCanDim, tx));
-	// Use: dim = constCanDim + (m_CritDim-eps)*dCanDim
+	// Use: dim = constCanDim + (m_CritDim-eps)*dCanDim.
 	const double dim(constCanDim + m_CritDim*dCanDim);
 	return CFormatFloat::bilinear(dim, -dCanDim);
 }
@@ -367,7 +367,7 @@ string CModelData::printHtmlDimensionOfCouplingConst(size_t tx) const
 	}
 	double dCanDim;
 	const double constCanDim(getDimensionOfCouplingConst(&dCanDim, tx));
-	// Use: dim = constCanDim + (m_CritDim-eps)*dCanDim
+	// Use: dim = constCanDim + (m_CritDim-eps)*dCanDim.
 	const double dim(constCanDim + m_CritDim*dCanDim);
 	return CFormatFloat::bilinear(dim, -dCanDim, eFormatHtml).toStdString();
 }
@@ -504,7 +504,6 @@ void CModelData::setGlyphCoordField(size_t cx, ECoordField type, const CGlyphCoo
 			m_Fields.push_back(glyph);
 		}
 	}
-	//fprintf(stderr, "NumCoord_%d, NumField_%d\n", numCoord(), numField());
 }
 
 /* METHOD *********************************************************************/
@@ -532,7 +531,7 @@ bool CModelData::determineCritDim(double& critDim)
 bool CModelData::determineCanonicalDimensions(size_t rxOfCoupling)
 {
 	m_CanDim.clear();
-	// Determine rank first: evaluate() may throw
+	// Determine rank first: evaluate() may throw.
 	m_Rank = CNumerics::determineRank(*this);
 	if (CNumerics::determineCritDim(m_CritDim, *this))
 	{
@@ -667,7 +666,6 @@ string CModelData::printCriticalDimension() const
 		return "undefined";
 	}
 	CFormatFloat val("%2.3f");
-	//val.check(m_CritDim);
 	return val.get(m_CritDim);
 }
 

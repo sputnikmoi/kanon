@@ -38,8 +38,8 @@ int cmpmemi(const void* m1, const void* m2, int numByte)
 #else
 	for (int ix{}; ix < numByte; ix++)
 	{
-		const int ch1(toupper(((char*)m1)[ix]));
-		const int ch2(toupper(((char*)m2)[ix]));
+		const int ch1{toupper(((char*)m1)[ix])};
+		const int ch2{toupper(((char*)m2)[ix])};
 		if (ch1 < ch2)
 		{
 			return -1;
@@ -85,13 +85,13 @@ bool contains(const string& str, const string& text)
 string dropLower(const string& str)
 {
 	string ret;
-	for (size_t ix{}; ix < str.size(); ix++)
+	for (const auto ch : str)
 	{
-		if (islower(str[ix]))
+		if (islower(ch))
 		{
 			break;
 		}
-		ret += str[ix];
+		ret += ch;
 	}
 	return ret;
 }
@@ -111,7 +111,7 @@ bool endsWith(const string& str, const string& end)
 *******************************************************************************/
 string extractFilename(const string& path)
 {
-	const string::size_type pos(path.find_last_of(":/\\"));
+	const string::size_type pos{path.find_last_of(":/\\")};
 	if (pos == string::npos)
 	{
 		return path;
@@ -130,7 +130,7 @@ string extractFilename(const string& path)
 *******************************************************************************/
 string extractPath(const string& pathname, bool allowEmpty)
 {
-	const string::size_type pos(pathname.find_last_of(":/\\"));
+	const string::size_type pos{pathname.find_last_of(":/\\")};
 	return pos == string::npos ? (allowEmpty ? "" : "./") : pathname.substr(0, pos + 1);
 }
 
@@ -145,15 +145,15 @@ string extractPath(const string& pathname, bool allowEmpty)
 *******************************************************************************/
 string::size_type findToken(const string& str, const size_t& start, const string& token)
 {
-	if (!token.empty()) for (size_t pos0(start); pos0 < str.size(); pos0++)
+	if (!token.empty()) for (size_t pos0{start}; pos0 < str.size(); pos0++)
 	{
-		const string::size_type pos(str.find(token, pos0));
+		const string::size_type pos{str.find(token, pos0)};
 		if (pos == string::npos)
 		{
 			break;
 		}
-		const int ch0(pos > 0 ? str[pos - 1] : -1);
-		const int ch1(str[pos + token.size()]);
+		const int ch0{pos > 0 ? str[pos - 1] : -1};
+		const int ch1{str[pos + token.size()]};
 		if (!(isAlNum(ch0) || ch0 == '_') && !(isAlNum(ch1) || ch1 == '_'))
 		{
 			return pos;
@@ -177,18 +177,18 @@ bool getDiff(const string& s1, string& more1, const string& s2, string& more2)
 {
 	more1.erase();
 	more2.erase();
-	for (size_t ix{}; ix < s1.size(); ix++)
+	for (const auto ch : s1)
 	{
-		if (string::npos == s2.find(s1[ix]))
+		if (string::npos == s2.find(ch))
 		{
-			more1 += s1[ix];
+			more1 += ch;
 		}
 	}
-	for (size_t jx{}; jx < s2.size(); jx++)
+	for (const auto ch : s2)
 	{
-		if (string::npos == s1.find(s2[jx]))
+		if (string::npos == s1.find(ch))
 		{
-			more2 += s2[jx];
+			more2 += ch;
 		}
 	}
 	return !more2.empty() || !more1.empty();
@@ -266,9 +266,9 @@ string getToken(
 	string token;
 	for (; index < source.size(); index++)
 	{
-		const int ch(source[index]);
-		const bool isIgnore(0 != memchr(ignore.c_str(), ch, ignore.size()));
-		const bool isDelim(0 != memchr(delim.c_str(), ch, delim.size()));
+		const int ch{source[index]};
+		const bool isIgnore{0 != memchr(ignore.c_str(), ch, ignore.size())};
+		const bool isDelim{0 != memchr(delim.c_str(), ch, delim.size())};
 		if (isDelim)
 		{	// Delimiter found (namely: source[index])
 			if (!token.empty())
@@ -296,7 +296,7 @@ string getToken(
 *******************************************************************************/
 bool hasExtension(const string& filename, const string& extension)
 {
-	const string::size_type delim(filename.find_last_of("./\\"));
+	const string::size_type delim{filename.find_last_of("./\\")};
 	if (delim == string::npos || filename[delim] != '.')
 	{
 		return extension.empty();
@@ -325,7 +325,7 @@ string replace(const string& str, const string& old,
 	string::size_type pos0{};
 	for (; maxNum > 0; maxNum--)
 	{
-		const string::size_type pos(str.find(old, pos0));
+		const string::size_type pos{str.find(old, pos0)};
 		if (pos == string::npos)
 		{
 			break;
@@ -333,7 +333,7 @@ string replace(const string& str, const string& old,
 		// Found
 		if (token)
 		{
-			string::size_type pos1(pos + old.size());
+			string::size_type pos1{pos + old.size()};
 			if ((pos > 0 && (isAlNum(str[pos - 1]) || str[pos - 1] == '_'))
 				|| (pos1 < str.size() && (isAlNum(str[pos1]) || str[pos1] == '_')))
 			{
@@ -379,7 +379,7 @@ void setFileExtension(
 	const string& filename,  // Input
 	const string& extension) // ("cpp", "h", ... or empty)
 {
-	const string::size_type delim(filename.find_last_of("./\\"));
+	const string::size_type delim{filename.find_last_of("./\\")};
 	if (delim == string::npos || filename[delim] == '/' || filename[delim] == '\\')
 	{
 		if (extension.empty())
@@ -417,7 +417,7 @@ string setFileExtension(const string& filename, const string& extension)
 string setLastChar(const string& str, int ch)
 {
 	string ret(str);
-	const string::size_type len(str.size());
+	const string::size_type len{str.size()};
 	if (len == 0 || str[len - 1] != ch)
 	{
 		ret += char(ch);
@@ -439,7 +439,7 @@ void split(std::vector<string>& result, const string& source, int sep, bool chec
 	string part;
 	for (size_t ix{}; ix < source.size(); ix++)
 	{
-		const int ch(source[ix]);
+		const auto ch{source[ix]};
 		if (checkEscape && ch == '\\' && ix + 1 < source.size() && source[ix + 1] == sep)
 		{
 			part += char(sep);
@@ -480,7 +480,7 @@ bool startsWith(const string& str, const string& start)
 string toAscii(const std::wstring& wstr)
 {
 	string ret;
-	const size_t numByte(wcstombs(nullptr, wstr.c_str(), 0) + 1);
+	const size_t numByte{wcstombs(nullptr, wstr.c_str(), 0) + 1};
 	if (numByte > 0)
 	{
 		char* buf{new char[numByte]};
@@ -498,9 +498,8 @@ string toAscii(const std::wstring& wstr)
 string toLower(const string& str)
 {
 	string ret;
-	for (size_t ix{}; ix < str.size(); ix++)
+	for (auto ch : str)
 	{
-		int ch{str[ix]};
 		if ('A' <= ch && ch <= 'Z')
 		{
 			ch += 'a'-'A';
@@ -568,9 +567,8 @@ string toString(const char* format, ...)
 string toUpper(const string& str)
 {
 	string ret;
-	for (size_t ix{}; ix < str.size(); ix++)
+	for (auto ch : str)
 	{
-		int ch{str[ix]};
 		if ('a' <= ch && ch <= 'z')
 		{
 			ch += 'A'-'a';
@@ -590,7 +588,7 @@ string trimWhite(const string& str)
 	{
 		unsigned start{};
 		for (; memchr(" \t\n\r", str[start], 4); start++) {}
-		string::size_type end(str.size() - 1);
+		string::size_type end{str.size() - 1};
 		for (; end > 0 && memchr(" \t\n\r", str[end], 4); end--) {}
 		return end >= start ? str.substr(start, 1 + end - start) : "";
 	}

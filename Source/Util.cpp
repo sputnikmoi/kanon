@@ -63,7 +63,7 @@ QPushButton* addButton(QWidget* parent, QBoxLayout* lb, QSignalMapper* signMap,
 *******************************************************************************/
 QAction* addMenuAction(QWidget* parent, QMenu* menu, const QString& name, const QString& shortcut, QSignalMapper* signMap, int mapVal)
 {
-	QAction* act(new QAction(name, parent));
+	QAction* act{new QAction(name, parent)};
 	act->setShortcut(shortcut);
 	signMap->setMapping(act, mapVal);
 	QObject::connect(act, SIGNAL(triggered()), signMap, SLOT(map()));

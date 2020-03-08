@@ -30,7 +30,7 @@ CMmlWdgtCoordField::CMmlWdgtCoordField(CWndMain* wndMain, ECoordField type, size
 	, m_IndexInModel(indexInModel)
 {
 	if (type == eField)
-	{	// Overwrite CMmlWdgtBase setting
+	{	// Overwrite CMmlWdgtBase setting.
 		setMinimumHeight(m_BaseFontPointSize + 16);
 		setAcceptDrops(true);
 	}
@@ -150,14 +150,9 @@ void CMmlWdgtCoordField::mouseMoveEvent(QMouseEvent*)
 		mimeData->setData(m_Type == eCoord ? MimeFormat::Coord : MimeFormat::Field, dataThis);
 		QDrag* drag{new QDrag(this)};
 		drag->setMimeData(mimeData);
-#if 1
 		QPixmap pxmp;
 		getPixmap(pxmp);
 		drag->setPixmap(pxmp);
-#else
-		const QImage image(m_Type == eCoord ? ":/images/Coordinate.png" : ":/images/Field.png");
-		drag->setPixmap(QPixmap::fromImage(image));
-#endif
 		drag->exec();
 	}
 }
@@ -169,11 +164,8 @@ void CMmlWdgtCoordField::mousePressEvent(QMouseEvent* ev)
 {
 	const bool isRightBtn{ev->button() == Qt::RightButton};
 	if (isMore())
-	{
-		if (!isRightBtn)
-		{
-			m_TimerId = startTimer(200);
-		}
+	{	// ignore isRightBtn.
+		m_TimerId = startTimer(200);
 	}
 	else
 	{
@@ -263,7 +255,7 @@ void CMmlWdgtCoordField::timerEvent(QTimerEvent* ev)
 	{
 		killTimer(m_TimerId);
 		m_TimerId = 0;
-		// ToDo: Don't open dialog if this starts a drag !
+		// ToDo: Do not open dialog if this starts a drag!
 		CDlgCoordFieldSymbol dlg(this, m_Type, m_IndexInModel);
 		if (QDialog::Accepted == dlg.exec())
 		{

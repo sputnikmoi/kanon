@@ -105,7 +105,7 @@ public:
 			break;
 		case Qt::BackgroundRole:
 			{
-				const bool isNormal(row < int(model().modelOrder()));
+				const bool isNormal{row < int(model().modelOrder())};
 				if (col == colIndex && isNormal && row == rxInteraction && rxSingular)
 				{
 					return QColor(Qt::red);
@@ -136,7 +136,6 @@ public:
 				}
 				else if (!guiMatrix().isDotRow(row))
 				{
-					// if (m_RxInteractionSingular) return "This row cannot be used as interaction.";
 					return QString(
 						"The canonical dimensions of coordinates,\n"
 						"fields and the coupling constant are determined from\n"
@@ -172,7 +171,7 @@ public:
 		return Qt::ItemIsEnabled;
 	}
 	void updateCells()
-	{	// Triggers an update of all cells
+	{	// Triggers an update of all cells.
 		dataChanged(index(0, 0), index(model().numTerm() - 1, colCount - 1));
 	}
 };
@@ -250,7 +249,7 @@ CGuiMatrix::CGuiMatrix(QBoxLayout* loOuter, CWndMain* wndMain)
 void CGuiMatrix::clear()
 {
 	for (size_t ix{}; ix < m_Rows.size(); ix++)
-	{	// Don't delete: widgets remain in the QTableView.
+	{	// Do not delete: widgets remain in the QTableView.
 		m_Rows[ix]->clear();
 	}
 	m_Rows.clear();
@@ -280,7 +279,6 @@ void CGuiMatrix::determineCriticalDimension()
 		}
 		catch (const std::exception&)
 		{
-			//msgBoxCritical(e.what(), m_TableView);
 			m_RxInteractionSingular = true;
 		}
 	}
@@ -307,7 +305,6 @@ void CGuiMatrix::updateMml()
 	bool haveMore{};
 	for (size_t rx{}; rx < m_Rows.size(); rx++)
 	{
-		//fprintf(stderr, "updRow_%u\n", rx);/**/
 		if (!haveMore)
 		{
 			m_Rows.at(rx)->updateMml();
@@ -340,9 +337,6 @@ void CGuiMatrix::addRow(CMmlWdgtRow* mmlWdgtRow)
 	const int row{int(m_Rows.size() - 1)};
 	m_TableView->setRowHeight(row, 2.7*mmlWdgtRow->baseFontPointSize()); // ToDo: Font
 	m_TableView->setIndexWidget(m_TableView->model()->index(row, colFormula), mmlWdgtRow);
-	//mmlWdgtRow->setAutoFillBackground(true); // See Qt::BackgroundRole in data() method
-	//mmlWdgtRow->setFocusPolicy(Qt::TabFocus);
-	//m_TableView->horizontalHeader()->setSectionResizeMode(colFormula, QHeaderView::ResizeToContents);
 	m_TableView->horizontalHeader()->setStretchLastSection(true);
 	m_TableView->setRowHidden(row, false);
 }
@@ -398,7 +392,7 @@ void CGuiMatrix::deleteCurrentRow()
 		{
 			m_Rows[jx]->assign(m_Rows[jx + 1]);
 		}
-		// Delete invalid last row
+		// Delete invalid last row.
 		const size_t ixLast{m_Rows.size() - 1};
 		m_TableView->setIndexWidget(m_TableView->model()->index(ixLast, colFormula), NULL);
 		m_TableView->setRowHidden(ixLast, true);
@@ -457,7 +451,6 @@ void CGuiMatrix::setFocusToInteractionRow()
 		if (rxInteraction < model().numTerm())
 		{
 			m_TableView->setCurrentIndex(m_ItemModel->index(int(rxInteraction), colFormula));
-			//m_Rows[rxInteraction]->setFocus(true);
 		}
 	}
 }
@@ -486,7 +479,7 @@ void CGuiMatrix::dragDropRow(void* src, void* dst)
 			ixDst = rx;
 		}
 	}
-	const bool ok(ixSrc < m_Rows.size() && ixDst < m_Rows.size());
+	const bool ok{ixSrc < m_Rows.size() && ixDst < m_Rows.size()};
 	if (ok && ixDst != ixSrc)
 	{	// The CMmlWdgtRow(s) are already in the layout -> exchange formula.//
 		model().setDirty();
@@ -570,21 +563,21 @@ void CGuiMatrix::toXml(CXmlCreator& xml)
 *******************************************************************************/
 void CGuiMatrix::deleteCoord(size_t index)
 {
-	for (size_t rx{}; rx < m_Rows.size(); rx++)
+	for (const auto& wdgtRow : m_Rows)
 	{
-		if (m_Rows[rx]->formula().containsCoord(index))
+		if (wdgtRow->formula().containsCoord(index))
 		{
 			if (yesNo(m_TableView, "Coordinate still used in the Lagrangian.\n"
-				"Remove all references?", "Delete coordinate"))
+				"Delete and remove all references?", "Delete coordinate"))
 			{
 				break;
 			}
 			return;
 		}
 	}
-	for (size_t rx{}; rx < m_Rows.size(); rx++)
-	{	// Erase instances
-		m_Rows[rx]->removeCoord(index);
+	for (auto& wdgtRow : m_Rows)
+	{	// Remove references.
+		wdgtRow->removeCoord(index);
 	}
 	m_WndMain->removeCoordFromOperator(index);
 	model().removeCoord(index);
@@ -598,12 +591,12 @@ void CGuiMatrix::deleteCoord(size_t index)
 *******************************************************************************/
 void CGuiMatrix::deleteField(size_t index)
 {
-	for (size_t rx{}; rx < m_Rows.size(); rx++)
-	{	// Next loop also would erase these instances
-		if (m_Rows[rx]->formula().containsField(index))
+	for (const auto& wdgRow : m_Rows)
+	{
+		if (wdgRow->formula().containsField(index))
 		{
 			if (yesNo(m_TableView, "Field still used in the Lagrangian.\n"
-				"Remove all references?", "Delete field"))
+				"Delete and remove all references?", "Delete field"))
 			{
 				break;
 			}
@@ -611,7 +604,7 @@ void CGuiMatrix::deleteField(size_t index)
 		}
 	}
 	for (auto& wdgtRow : m_Rows)
-	{	// Erase instances
+	{	// Remove references.
 		wdgtRow->removeField(index);
 	}
 	model().removeField(index);
