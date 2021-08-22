@@ -26,7 +26,7 @@ namespace
 		~CGuiOptimizationInfo() { m_Loading = false; }
 	};
 	 
-	const string g_FileVersion("4.0");
+	const string g_FileVersionKanon("4");
 	bool g_Ascending{};
 	 
 	bool ltName(const CModelData& x, const CModelData& y) {
@@ -83,11 +83,11 @@ CModelData& model()
 *******************************************************************************/
 CModelData::CModelData(bool isSingleton)
 	: m_IsSingleton(isSingleton)
-	, m_Dirty(false)
-	, m_Dynamics(false)
-	, m_ReactionDiffusion(false)
-	, m_Statics(false)
-	, m_QuantumFieldTheory(false)
+	, m_Dirty()
+	, m_Dynamics()
+	, m_ReactionDiffusion()
+	, m_Statics()
+	, m_QuantumFieldTheory()
 	, m_CritDim(CNumerics::INVALID_CRITDIM)
 	, m_Rank(-1)
 	, m_Comment()
@@ -101,15 +101,20 @@ CModelData::CModelData(bool isSingleton)
 	, m_NormalVect()
 	, m_CanDim()
 {
+	insertDefaultCoordField();
+}
+
+void CModelData::insertDefaultCoordField()
+{
 #if 1
-	// Coords//
-	m_Coords.push_back(CGlyphCoordField(x_, "D-dimensional coordinate"));
-	//m_Coords.push_back(CGlyphCoordField(t_, "Time"));
-	// Fields//
-	//CGlyphCoordField field(phi, "Response field");
-	//field.setTilde(true);
-	//m_Fields.push_back(field);
-	m_Fields.push_back(CGlyphCoordField(phi));
+	if (m_Coords.empty())
+	{
+		m_Coords.push_back(CGlyphCoordField(x_, "D-dimensional coordinate"));
+	}
+	if (m_Fields.empty())
+	{
+		m_Fields.push_back(CGlyphCoordField(phi));
+	}
 #endif
 }
 
@@ -299,9 +304,7 @@ string CModelData::flags() const
 void CModelData::dump() const
 {
 	//fprintf(stderr, "--dump()--\n");
-	//	for (size_t cx(0); cx < m_Coords.size(); cx++) {
-	//		m_Coords[cx].dump();
-	//	}
+	//	for (const auto& coord : m_Coords.size()) { coord.dump(); }
 	//	fprintf(stderr, "\n");
 	for (size_t tx{}; tx < numTerm(); tx++)
 	{
@@ -763,75 +766,104 @@ bool CModelData::makeClean()
 /**
   Loads data from file.
 @param   pathname: Source
+@param     errMsg: Error message or empty (Qt crashes when a messageBox is opened in an exception handler) !
 *******************************************************************************/
-void CModelData::loadData(const string& pathname)
+void CModelData::loadData(const string& pathname, string& errMsg)
 {
-	CGuiOptimizationInfo loadGuard(s_LoadingFile);
-	QDomDocument doc;
-	xmlOpen(doc, pathname.c_str());
-	QDomElement docElem(doc.documentElement());
-	if (docElem.tagName() != "Kanon")
+	try
 	{
-		throwError("This is another XML file type, cannot be loaded.\n" + pathname);
-	}
-	m_Pathname = pathname;
-	m_Coords.clear();
-	m_Fields.clear();
-	m_Monomials.clear();
-	m_UserTag = xmlGetAttr(docElem, "userTag");
-	m_Dynamics = xmlGetBool(docElem, "dynamics");
-	m_ReactionDiffusion = xmlGetBool(docElem, "reactionDiffusion");
-	m_Statics = xmlGetBool(docElem, "statics");
-	m_QuantumFieldTheory = xmlGetBool(docElem, "qmField");
-	const string version(xmlRequireAttr(docElem, "version"));
-	throwAssert("File version is unknown: " + version + "\n" + pathname, version == g_FileVersion);
-	size_t numMonomial{};
-	for (QDomNode node(docElem.firstChild()); !node.isNull(); node = node.nextSibling())
-	{
-		if (node.isElement())
+		errMsg.clear();
+		CGuiOptimizationInfo loadGuard(s_LoadingFile);
+		QDomDocument doc;
+		xmlOpen(doc, pathname.c_str());
+		QDomElement docElem(doc.documentElement());
+		if (docElem.tagName() != "Kanon")
 		{
-			QDomElement elem(node.toElement());
-			const QString tagName(elem.tagName());
-			if (tagName == "Name")
-			{
-				m_Name = xmlGetTextData(elem);
-			}
-			else if (tagName == "Comment")
-			{
-				m_Comment = xmlGetPcData(elem);
-				//fprintf(stderr, "Comment %s\n", m_Comment.c_str());
-			}
-			else if (tagName == "Coordinate")
-			{
-				CGlyphCoordField coord(elem);
-				m_Coords.push_back(coord);
-			}
-			else if (tagName == "Field")
-			{
-				CGlyphCoordField field(elem);
-				m_Fields.push_back(field);
-			}
-			else if (tagName == "Monomial")
-			{
-				CFormula formula;
-				formula.fromXml(elem);
-				m_Monomials.push_back(formula);
-				if (m_IsSingleton)
-				{	// Monomials kept in CGuiMatrix for edit
-					guiMatrix().addRow(formula, numMonomial++);
-				}
-			}
-			else if (tagName == "References")
-			{
-				m_References = xmlGetPcData(elem);
-				//fprintf(stderr, "References %s\n", m_References.c_str());
+			throwError("This is another XML file type, cannot be loaded.\n" + pathname);
+		}
+		m_Pathname = pathname;
+		m_Coords.clear();
+		m_Fields.clear();
+		m_Monomials.clear();
+		m_UserTag = xmlGetAttr(docElem, "userTag");
+		m_Dynamics = xmlGetBool(docElem, "dynamics");
+		m_ReactionDiffusion = xmlGetBool(docElem, "reactionDiffusion");
+		m_Statics = xmlGetBool(docElem, "statics");
+		m_QuantumFieldTheory = xmlGetBool(docElem, "qmField");
+		 
+		const string version(xmlRequireAttr(docElem, "version"));
+		unsigned uFileVersionKanon{}, uFileVersionFile{};
+		if (1 == sscanf(g_FileVersionKanon.c_str(), "%u", &uFileVersionKanon)
+			&& 1 == sscanf(version.c_str(), "%u", &uFileVersionFile))
+		{
+			if (uFileVersionFile > uFileVersionKanon)
+			{	// Throwing exceptions from an event handler is not supported in Qt (Qt5?). !
+				// You must not let any exception whatsoever propagate through Qt code. !
+				insertDefaultCoordField(); // Saves the day.
+				const string errText("This Kanon version supports file version " + g_FileVersionKanon + ".\n"
+					"File has version " + version + ".\n" + pathname);
+				errMsg = errText;
 			}
 		}
+		size_t numMonomial{};
+		for (QDomNode node(docElem.firstChild()); !node.isNull(); node = node.nextSibling())
+		{
+			if (node.isElement())
+			{
+				QDomElement elem(node.toElement());
+				const QString tagName(elem.tagName());
+				if (tagName == "Name")
+				{
+					m_Name = xmlGetTextData(elem);
+				}
+				else if (tagName == "Comment")
+				{
+					m_Comment = xmlGetPcData(elem);
+					//fprintf(stderr, "Comment %s\n", m_Comment.c_str());
+				}
+				else if (tagName == "Coordinate")
+				{
+					CGlyphCoordField coord(elem);
+					m_Coords.push_back(coord);
+				}
+				else if (tagName == "Field")
+				{
+					CGlyphCoordField field(elem);
+					m_Fields.push_back(field);
+				}
+				else if (tagName == "Monomial")
+				{
+					CFormula formula;
+					formula.fromXml(elem);
+					errMsg = formula.validate(*this);
+					if (errMsg.empty())
+					{
+						m_Monomials.push_back(formula);
+						if (m_IsSingleton)
+						{	// Monomials kept in CGuiMatrix for edit
+							guiMatrix().addRow(formula, numMonomial++);
+						}
+					}
+				}
+				else if (tagName == "References")
+				{
+					m_References = xmlGetPcData(elem);
+					//fprintf(stderr, "References %s\n", m_References.c_str());
+				}
+			}
+		}
+		if (!m_IsSingleton)
+		{	// Fill model list.
+			Pk = createPk(array());
+			push_back(*this);
+		}
+		insertDefaultCoordField();
 	}
-	if (!m_IsSingleton)
-	{	// Fill model list
-		Pk = createPk(array());
-		push_back(*this);
+	catch (const std::exception& e)
+	{
+		insertDefaultCoordField();
+		errMsg = string(e.what()) + ", " + pathname;
+		fprintf(stderr, "ERR %s\n\n", e.what());/**/
 	}
 }
 
@@ -872,7 +904,7 @@ bool CModelData::saveData(QWidget* parent, const string& pathname)
 	{
 		xml.addAttrib("qmField", CXmlCreator::bool2string(m_QuantumFieldTheory));
 	}
-	xml.addAttrib("version", g_FileVersion);
+	xml.addAttrib("version", g_FileVersionKanon);
 	xml.createTag("Kanon");
 	xml.createChild("Name", m_Name);
 	xml.createChildPcData("Comment", m_Comment);

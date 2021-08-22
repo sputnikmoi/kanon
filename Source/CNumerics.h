@@ -28,7 +28,7 @@ public:
 	static bool determineCritDim(double &critDim, const CModelData&);
 	static int  determineRank(const CModelData&);
 	static void determineCanonicalDimensions(double& critDim, std::vector<SCanDim>&, const CModelData&, int rxInteraction,
-		matrix<double>* expMatrix = 0, matrix<double>* invMatrix = 0);
+		matrix<double>* expMatrix = 0, matrix<double>* invMatrix = nullptr);
 private:
 	static void determineUselessTerms(CModelData&);
 	static void getSpanningMatrix(matrix<double>& mtrx, const CModelData&);

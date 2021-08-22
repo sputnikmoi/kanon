@@ -28,12 +28,12 @@ struct MimeFormat
 
 /* FUNCTIONS ******************************************************************/
 QString appName();
-QPushButton* addButton(QWidget* parent, QBoxLayout* lb, QSignalMapper* signMap, const QString& name, int mapVal, const QString& toolTip="");
+QPushButton* addButton(QWidget* parent, QBoxLayout*, QSignalMapper*, const QString& name, int mapVal, const QString& toolTip="");
 QAction* addMenuAction(QWidget* parent, QMenu*, const QString& name, const QString& shortcut, QSignalMapper*, int mapVal);
 unsigned createRandomKey();
 std::string getVersionString();
 void msgBox(QWidget* parent, const QString& text);
-bool msgBoxCritical(const std::string& text, QWidget* parent = 0);
+bool msgBoxCritical(const std::string& text, QWidget* parent = nullptr);
 bool yesNo(QWidget* parent, const std::string& text, const std::string& title = "");
 int yesNoCancel(QWidget* parent, const std::string& text, const std::string& title = "");
 
@@ -47,15 +47,15 @@ void throwError(const std::string& text);
 void throwError(const QString& text);
 void throwAssert(const std::string& text, bool val);
 
-bool        xmlGetBool(QDomNode& node, const QString& name);
-bool        xmlHasTagName(QDomNode& node, const QString& name);
-std::string xmlGetAttr(QDomNode& node, const QString& name, bool mandatory = false);
-std::string xmlGetPcData(QDomElement& elem);
-std::string xmlGetTextData(QDomElement& elem);
-std::string xmlGetTextData2(QDomNode& node, const QString& name);
+bool        xmlGetBool(QDomNode&, const QString& name);
+bool        xmlHasTagName(QDomNode&, const QString& name);
+std::string xmlGetAttr(QDomNode&, const QString& name, bool mandatory = false);
+std::string xmlGetPcData(QDomElement&);
+std::string xmlGetTextData(QDomElement&);
+std::string xmlGetTextData2(QDomNode&, const QString& name);
 
-std::string xmlRequireAttr(QDomNode& node, const QString& name);
-void        xmlOpen(QDomDocument& doc, const QString& filename);
+std::string xmlRequireAttr(QDomNode&, const QString& name);
+void        xmlOpen(QDomDocument&, const QString& filename);
 
 #endif
 

@@ -97,13 +97,13 @@ void CNumerics::determineCanonicalDimensions(double& critDim, std::vector<SCanDi
 	dimFirstCoord.constVal = 1.0;
 	dimFirstCoord.dVal = 0.0;
 	canDim.push_back(dimFirstCoord);
-	// Create E1 matrix (WITHOUT exponents of 1st coordinate, which enter the rhsVector)//
-	// E1 also hast 1 in all columns with index >= modelOrder (first 1 for rxOfCoupling) //
+	// Create E1 matrix (WITHOUT exponents of 1st coordinate, which enter the rhsVector). //
+	// E1 also hast 1 in all columns with index >= modelOrder (first 1 for rxOfCoupling). //
 	matrix<TComplex> E1(mod.numTerm(), mod.numTerm());
-	// Columns in which 1.0 is to be inserted for a coupling constant
-	unsigned couplingCol(mod.modelOrder());
-	unsigned rx1(rxOfCoupling + 1);
-	for (unsigned rx(1); rx <= mod.numTerm(); rx++)
+	// Columns in which 1.0 is to be inserted for a coupling constant.
+	unsigned couplingCol{unsigned(mod.modelOrder())};
+	unsigned rx1{unsigned(rxOfCoupling + 1)};
+	for (unsigned rx{1}; rx <= mod.numTerm(); rx++)
 	{	// All terms (with extra terms)
 		for (unsigned cx{1}; cx <= mod.numTerm(); cx++)
 		{	// First column gets removed

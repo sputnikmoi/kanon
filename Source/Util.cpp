@@ -25,7 +25,7 @@ namespace
 {
 	const unsigned s_ModuleVerMajor{3}; // Written to XML file
 	const unsigned s_ModuleVerMinor{1}; // Written to XML file
-	const unsigned s_ModuleVerRel{0};   // Written to XML file
+	const unsigned s_ModuleVerRel{1};   // Written to XML file
 }
 
 const QString MimeFormat::Coord("kanon_coord");

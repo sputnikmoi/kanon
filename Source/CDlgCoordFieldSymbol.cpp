@@ -82,11 +82,15 @@ CDlgCoordFieldSymbol::CDlgCoordFieldSymbol(QWidget* parent, ECoordField type, si
 		addToCmb(y_);
 		addToCmb(z_);
 		addToCmb(h_);
+		addToCmb(k_);
+		addToCmb(p_);
+		addToCmb(q_);
 		addToCmb(l_);
 		addToCmb(s_);
 		addToCmb(u_);
 		addToCmb(v_);
 		addToCmb(w_);
+		addToCmb(tau);
 	}
 	loGrid->addWidget(m_CmbSymbol, 1, colSymbol);
 	m_CmbSymbol->setToolTip("The mathematical symbol\nrepresenting the " + m_StrType + ".\n\n"
@@ -230,8 +234,8 @@ void CDlgCoordFieldSymbol::onOk()
 		const int suffix{m_CmbSuffix->itemData(m_CmbSuffix->currentIndex()).toInt()};
 		m_Glyph.setSuffix(suffix);
 	}
-	const int symb{m_CmbSymbol->itemData(m_CmbSymbol->currentIndex()).toInt()};
-	m_Glyph.setSymbol(static_cast<ESymbol>(symb));
+	const ESymbol symb{static_cast<ESymbol>(m_CmbSymbol->itemData(m_CmbSymbol->currentIndex()).toInt())};
+	m_Glyph.setSymbol(symb);
 	model().setGlyphCoordField(m_IndexInModel, m_IsCoordinate ? eCoord : eField, m_Glyph);
 	done(Accepted);
 }

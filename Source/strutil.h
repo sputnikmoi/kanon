@@ -1,3 +1,6 @@
+/*****************************************************************************
+std::string functions, sorted alphabetically
+*****************************************************************************/
 #ifndef STRUTIL_H
 #define STRUTIL_H
 #include <string>
@@ -28,17 +31,17 @@ string setFileExtension(const string& filename, const string& extension);
 string setLastChar(const string&, int ch = '/');
 void   split(std::vector<string>& result, const string& source, int sep, bool checkEscape = false);
 bool   startsWith(const string&, const string& start);
-string toAscii(const std::wstring& wstr);
+string toAscii(const std::wstring&);
 string toLower(const string&);
 string toString(const char* format, ...);
-string toString(double, const char* format="%g");
-string toString(int, const char* format="%d");
-string toString(unsigned, const char* format="%u");
+string toString(double, const char* format = "%g");
+string toString(int, const char* format = "%d");
+string toString(unsigned, const char* format = "%u");
 #ifndef __GNUC__
-string toString(_int64, const char* format="%I64d");
+string toString(_int64, const char* format = "%I64d");
 #endif
 string toUpper(const string&);
 string trimWhite(const string&);
-string unQuote(const string&, int chQuote='"');
+string unQuote(const string&, int chQuote = '"');
 
 #endif

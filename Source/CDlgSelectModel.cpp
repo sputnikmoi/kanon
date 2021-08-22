@@ -73,10 +73,15 @@ void CDlgSelectModel::readModelFiles()
 		CModelData data;
 		try
 		{
-			data.loadData(filename);
+			string errMsg;
+			data.loadData(filename, errMsg);
+			if (!errMsg.empty())
+			{
+				msgBoxCritical(errMsg, this);
+			}
 		}
 		catch (const std::exception& e)
-		{
+		{	// Should not be reached anymore. -
 			msgBoxCritical(e.what(), this);
 			continue;
 		}
@@ -238,42 +243,39 @@ void CDlgSelectModel::onSignMap(int id)
 					break;
 				}
 			}
-			 
 		}
 		break;
 	case idDelete:
+		if (index.isValid())
 		{
-			if (index.isValid())
+			const int row{index.row()};
+			const CModelData& mod{CModelData::at(row)};
+			if (mod.pathname().empty())
 			{
-				const int row{index.row()};
-				const CModelData& mod{CModelData::at(row)};
-				if (mod.pathname().empty())
+				return;
+			}
+			if (yesNo(this, "Delete model '" + mod.name() +
+				"'\nThis will delete the file\n\n" + mod.pathname() + "\n"
+				, "Delete"))
+			{
+				if (0 == unlink(mod.pathname().c_str()))
 				{
-					return;
+					int rowFocus{row + 1};
+					if (rowFocus >= int(CModelData::size()))
+					{	// Take predecessor.
+						rowFocus -= 2;
+					}
+					if (size_t(rowFocus) < CModelData::size())
+					{
+						m_UsePathnameToFocus = true;
+						m_PathnameToFocus = CModelData::at(rowFocus).pathname();
+					}
+					readModelFiles();
+					applyFilter();
 				}
-				if (yesNo(this, "Delete model '" + mod.name() +
-					"'\nThis will delete the file\n\n" + mod.pathname() + "\n"
-					, "Delete"))
+				else
 				{
-					if (0 == unlink(mod.pathname().c_str()))
-					{
-						int rowFocus{row + 1};
-						if (rowFocus >= int(CModelData::size()))
-						{	// Take predecessor
-							rowFocus -= 2;
-						}
-						if (size_t(rowFocus) < CModelData::size())
-						{
-							m_UsePathnameToFocus = true;
-							m_PathnameToFocus = CModelData::at(rowFocus).pathname();
-						}
-						readModelFiles();
-						applyFilter();
-					}
-					else
-					{
-						msgBox(this, ("Cannot delete file\n   " + mod.pathname()).c_str());
-					}
+					msgBox(this, ("Cannot delete file\n   " + mod.pathname()).c_str());
 				}
 			}
 		}

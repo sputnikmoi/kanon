@@ -131,7 +131,7 @@ void CMmlWdgtOperator::dropEvent(QDropEvent* ev)
 	if (ev->mimeData()->hasFormat(MimeFormat::Coord))
 	{
 		bool ok;
-		const int coordIndex(ev->mimeData()->data(MimeFormat::Coord).toInt(&ok));
+		const int coordIndex{ev->mimeData()->data(MimeFormat::Coord).toInt(&ok)};
 		if (ok)
 		{
 			setCoordIndex(coordIndex);

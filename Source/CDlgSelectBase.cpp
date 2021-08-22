@@ -7,7 +7,6 @@
 
 #define PK_NULL 0U // Invalid
 
-
 /* METHOD *********************************************************************/
 /**
   Ctor.
@@ -20,7 +19,7 @@ CDlgSelectBase::CDlgSelectBase(QWidget* parent, const QString& title, QAbstractT
   , m_TableView()
   , m_ExecPk(PK_NULL)
 {
-  setWindowFlags(windowFlags() | Qt::WindowMinMaxButtonsHint | Qt::WindowSystemMenuHint); // No effect !
+  setWindowFlags(windowFlags() | Qt::WindowMinMaxButtonsHint | Qt::WindowSystemMenuHint); // No effect!
   QBoxLayout* lv{new QVBoxLayout(this)};
   lv->addLayout(m_BoxLayout);
   m_TableView = new CTableView(this);

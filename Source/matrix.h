@@ -34,7 +34,7 @@ natural meaning except the followings:
 
 Operator/Method                          Description
 ---------------                          -----------
-operator ()   :   This function operator can be used as a
+operator()    :   This function operator can be used as a
                   two-dimensional subscript operator to get/set
                   individual matrix elements.
 
@@ -86,7 +86,7 @@ public:
 };
 #define REPORT_ERROR(ErrormMsg) throw matrix_error( ErrormMsg);
 #else
-inline void _matrix_error (const char* ErrMsg)
+inline void _matrix_error(const char* ErrMsg)
 {
 	cout << ErrMsg << endl;
 	exit(1);
@@ -103,79 +103,72 @@ private:
 	T** Val;
 	size_t Row, Col, RowSiz, ColSiz;
 
-	void realloc (size_t row, size_t col);
-	int pivot (size_t row);
-	int pivotCol (size_t row);
+	void realloc(size_t row, size_t col);
+	int pivot(size_t row);
+	int pivotCol(size_t row);
 
 public:
 	// Constructors
-	matrix (const matrixT& m);
-	matrix (size_t row = 6, size_t col = 6);
+	matrix(const matrixT& m);
+	matrix(size_t row = 6, size_t col = 6);
 
 	// Destructor
-	~matrix ();
+	~matrix();
 
 	// Value extraction method
 	size_t RowNo() const { return Row; }
 	size_t ColNo() const { return Col; }
 
 	// Subscript operator
-	T& operator () (size_t row, size_t col);
+	T& operator()(size_t row, size_t col);
 
 	// Unary operators
-	matrixT operator + () { return *this; }
-	matrixT operator - ();
+	matrixT operator +() { return *this; }
+	matrixT operator -();
 
 	// Assignment operators
-	matrixT& operator = (const matrixT& m);
+	matrixT& operator=(const matrixT&);
 
 	// Combined assignment - calculation operators
-	matrixT& operator += (const matrixT& m);
-	matrixT& operator -= (const matrixT& m);
-	matrixT& operator *= (const matrixT& m);
-	matrixT& operator *= (const T& c);
-	matrixT& operator /= (const T& c);
-	matrixT& operator ^= (const size_t& pow);
-	matrixT multiplied(const matrixT& m);
+	matrixT& operator+=(const matrixT&);
+	matrixT& operator-=(const matrixT&);
+	matrixT& operator*=(const matrixT&);
+	matrixT& operator*=(const T& c);
+	matrixT& operator/=(const T& c);
+	matrixT& operator^=(const size_t& pow);
+	matrixT multiplied(const matrixT&);
 
 	// Logical operators
-//	/*friend*/ bool operator == (const matrixT& m1, const matrixT& m2);
-//	/*friend*/ bool operator != (const matrixT& m1, const matrixT& m2);
+//	/*friend*/ bool operator==(const matrixT& m1, const matrixT& m2);
+//	/*friend*/ bool operator!=(const matrixT& m1, const matrixT& m2);
 
 	// Calculation operators
 	void Invert(matrixT& result);
 #if !defined(_MSC_VER) || _MSC_VER > 1020
-	friend matrixT operator / (const matrixT& m, const T& no) { return (m*(1/no)); }
-	friend matrixT operator / (const T& no, const matrixT& m) { return (!m * no); }
+	friend matrixT operator/(const matrixT& m, const T& no) { return m*(1/no); }
+	friend matrixT operator/(const T& no, const matrixT& m) { return !m * no; }
 #endif
 	// Miscellaneous -methods
-	void Unit ();
+	void Unit();
 	void SetSize(size_t row, size_t col);
 
 	// Utility methods
-	matrixT Solve (const matrixT& v) const;
-	matrixT Adj ();
-	T Det ();
-	int Rank ();
-	T Norm ();
-	T Cofact (size_t row, size_t col);
-	T Cond ();
+	matrixT Solve(const matrixT& v) const;
+	matrixT Adj();
+	T Det();
+	int Rank();
+	T Norm();
+	T Cofact(size_t row, size_t col);
+	T Cond();
 
 	// Type of matrices
-	bool IsSquare () { return (Row == Col); }
-	bool IsSingular ();
-	bool IsDiagonal ();
-	bool IsScalar ();
-	bool IsUnit ();
-	bool IsNull ();
-	bool IsSymmetric ();
-	bool IsSkewSymmetric ();
-	bool IsUpperTiangular ();
-	bool IsLowerTiangular ();
+	bool IsSquare() { return Row == Col; }
+	bool IsSingular();
+	bool IsNull();
 };
 
 // constructor
-MAT_TEMPLATE matrixT::matrix (size_t row, size_t col)
+MAT_TEMPLATE matrixT::matrix(size_t row, size_t col)
 {
 	RowSiz = Row = row;
 	ColSiz = Col = col;
@@ -187,7 +180,7 @@ MAT_TEMPLATE matrixT::matrix (size_t row, size_t col)
 }
 
 // copy constructor
-MAT_TEMPLATE matrixT::matrix (const matrixT& m)
+MAT_TEMPLATE matrixT::matrix(const matrixT& m)
 {
 	RowSiz = Row = m.Row;
 	ColSiz = Col = m.Col;
@@ -202,9 +195,7 @@ MAT_TEMPLATE matrixT::matrix (const matrixT& m)
 	}
 }
 
-
-// destructor
-MAT_TEMPLATE matrixT::~matrix (void)
+MAT_TEMPLATE matrixT::~matrix()
 {
 	for (size_t i{}; i < RowSiz; i++)
 	{
@@ -215,8 +206,6 @@ MAT_TEMPLATE matrixT::~matrix (void)
 	Val = 0;
 }
 
-
-// reallocation method
 MAT_TEMPLATE void matrixT::realloc(size_t row, size_t col)
 {
 	if (row == RowSiz && col == ColSiz)
@@ -247,8 +236,7 @@ MAT_TEMPLATE void matrixT::realloc(size_t row, size_t col)
 	Val = Val1;
 }
 
-// public method for resizing matrix
-MAT_TEMPLATE void matrixT::SetSize (size_t row, size_t col)
+MAT_TEMPLATE void matrixT::SetSize(size_t row, size_t col)
 {
 	const size_t oldRow{Row};
 	const size_t oldCol{Col};
@@ -261,30 +249,26 @@ MAT_TEMPLATE void matrixT::SetSize (size_t row, size_t col)
 	{
 		for (size_t i{oldRow}; i < row; i++)
 			for (size_t j{}; j < oldCol; j++)
-				Val[i][j] = T(0);
+				Val[i][j] = T();
 	}
 	if (col > oldCol)
 	{
 		for (size_t i{}; i < col; i++)
 		{
 			for (size_t j{oldCol}; j < col; j++)
-				Val[i][j] = T(0);
+				Val[i][j] = T();
 		}
 	}
 }
 
-// subscript operator to get/set individual elements
-MAT_TEMPLATE T&
-matrixT::operator () (size_t row, size_t col)
+MAT_TEMPLATE T& matrixT::operator()(size_t row, size_t col)
 {
 	if (row >= Row || col >= Col)
 		REPORT_ERROR( "matrixT::operator(): Index out of range!");
 	return Val[row][col];
 }
 
-// assignment operator
-MAT_TEMPLATE matrixT&
-matrixT::operator = (const matrixT& m)
+MAT_TEMPLATE matrixT& matrixT::operator=(const matrixT& m)
 {
 	if (Row != m.Row || Col != m.Col)
 		realloc( m.Row,m.Col);
@@ -297,11 +281,9 @@ matrixT::operator = (const matrixT& m)
 	return *this;
 }
 
-// logical equal-to operator
-MAT_TEMPLATE bool
-operator == (const matrixT& m1, const matrixT& m2)
+MAT_TEMPLATE bool operator==(const matrixT& m1, const matrixT& m2)
 {
-	bool retVal(false);
+	bool retVal{};
 
 	if (m1.Row != m2.Row || m1.Col != m2.Col)
 		return retVal;
@@ -314,17 +296,12 @@ operator == (const matrixT& m1, const matrixT& m2)
 	return true;
 }
 
-// logical no-equal-to operator
-MAT_TEMPLATE bool
-operator != (const matrixT& m1, const matrixT& m2)
+MAT_TEMPLATE bool operator!=(const matrixT& m1, const matrixT& m2)
 {
-	return (m1 == m2) ? false : true;
+	return !(m1 == m2);
 }
 
-
-// combined addition and assignment operator
-MAT_TEMPLATE matrixT&
-matrixT::operator += (const matrixT& m)
+MAT_TEMPLATE matrixT& matrixT::operator+=(const matrixT& m)
 {
 	if (Row != m.Row || Col != m.Col)
 		REPORT_ERROR( "matrixT::operator+= : Inconsistent matrix size in addition!");
@@ -334,10 +311,7 @@ matrixT::operator += (const matrixT& m)
 	return *this;
 }
 
-
-// combined subtraction and assignment operator
-MAT_TEMPLATE matrixT&
-matrixT::operator -= (const matrixT& m)
+MAT_TEMPLATE matrixT& matrixT::operator-=(const matrixT& m)
 {
 	if (Row != m.Row || Col != m.Col)
 		REPORT_ERROR( "matrixT::operator-= : Inconsistent matrix size in subtraction!");
@@ -348,9 +322,7 @@ matrixT::operator -= (const matrixT& m)
 	return *this;
 }
 
-// combined scalar multiplication and assignment operator
-MAT_TEMPLATE matrixT&
-matrixT::operator *= (const T& c)
+MAT_TEMPLATE matrixT& matrixT::operator*=(const T& c)
 {
 	for (size_t i{}; i < Row; i++)
 	{
@@ -372,7 +344,7 @@ MAT_TEMPLATE matrixT matrixT::multiplied(const matrixT& m2)
 	for (size_t i{}; i < Row; i++)
 		for (size_t j{}; j < m2.Col; j++)
 	{
-		product.Val[i][j] = T(0);
+		product.Val[i][j] = T();
 		for (size_t k{}; k < Col; k++)
 		{
 			product.Val[i][j] += Val[i][k] * m2.Val[k][j];
@@ -381,9 +353,7 @@ MAT_TEMPLATE matrixT matrixT::multiplied(const matrixT& m2)
 	return product;
 }
 
-// combined matrix multiplication and assignment operator
-MAT_TEMPLATE matrixT&
-matrixT::operator *= (const matrixT& m)
+MAT_TEMPLATE matrixT& matrixT::operator*=(const matrixT& m)
 {
 	if (Col != m.Row)
 	{
@@ -393,10 +363,7 @@ matrixT::operator *= (const matrixT& m)
 	return *this;
 }
 
-
-// combined scalar division and assignment operator
-MAT_TEMPLATE matrixT&
-matrixT::operator /= (const T& c)
+MAT_TEMPLATE matrixT& matrixT::operator/=(const T& c)
 {
 	for (size_t i{}; i < Row; i++)
 	{
@@ -407,9 +374,7 @@ matrixT::operator /= (const T& c)
 	return *this;
 }
 
-// combined power and assignment operator
-MAT_TEMPLATE matrixT&
-matrixT::operator ^= (const size_t& pow)
+MAT_TEMPLATE matrixT& matrixT::operator^=(const size_t& pow)
 {
 	for (size_t i=2; i <= pow; i++)
 	{
@@ -418,9 +383,7 @@ matrixT::operator ^= (const size_t& pow)
 	return *this;
 }
 
-// unary negation operator
-MAT_TEMPLATE matrixT
-matrixT::operator - ()
+MAT_TEMPLATE matrixT matrixT::operator-()
 {
 	matrixT temp(Row,Col);
 
@@ -431,9 +394,7 @@ matrixT::operator - ()
 	return temp;
 }
 
-// binary addition operator
-MAT_TEMPLATE matrixT
-operator + (const matrixT& m1, const matrixT& m2)
+MAT_TEMPLATE matrixT operator+(const matrixT& m1, const matrixT& m2)
 {
 	if (m1.Row != m2.Row || m1.Col != m2.Col)
 		REPORT_ERROR( "matrixT::operator+: Inconsistent matrix size in addition!");
@@ -447,9 +408,7 @@ operator + (const matrixT& m1, const matrixT& m2)
 	return temp;
 }
 
-// binary subtraction operator
-MAT_TEMPLATE matrixT
-operator - (const matrixT& m1, const matrixT& m2)
+MAT_TEMPLATE matrixT operator-(const matrixT& m1, const matrixT& m2)
 {
 	if (m1.Row != m2.Row || m1.Col != m2.Col)
 		REPORT_ERROR( "matrixT::operator-: Inconsistent matrix size in subtraction!");
@@ -463,10 +422,7 @@ operator - (const matrixT& m1, const matrixT& m2)
 	return temp;
 }
 
-
-// scalar multiplication operator
-MAT_TEMPLATE matrixT
-operator * (const matrixT& m, const T& no)
+MAT_TEMPLATE matrixT operator*(const matrixT& m, const T& no)
 {
 	matrixT temp(m.Row,m.Col);
 	for (size_t i{}; i < m.Row; i++)
@@ -477,9 +433,7 @@ operator * (const matrixT& m, const T& no)
 	return temp;
 }
 
-
-// matrix multiplication
-MAT_TEMPLATE matrixT operator * (const matrixT& m1, const matrixT& m2)
+MAT_TEMPLATE matrixT operator*(const matrixT& m1, const matrixT& m2)
 {
 	if (m1.Col != m2.Row)
 	{
@@ -489,7 +443,7 @@ MAT_TEMPLATE matrixT operator * (const matrixT& m1, const matrixT& m2)
 	for (size_t i{}; i < m1.Row; i++)
 		for (size_t j{}; j < m2.Col; j++)
 	{
-		temp.Val[i][j] = T(0);
+		temp.Val[i][j] = T();
 		for (size_t k{}; k < m1.Col; k++)
 		{
 			temp.Val[i][j] += m1.Val[i][k] * m2.Val[k][j];
@@ -498,9 +452,7 @@ MAT_TEMPLATE matrixT operator * (const matrixT& m1, const matrixT& m2)
 	return temp;
 }
 
-// binary power operator
-MAT_TEMPLATE matrixT
-operator ^ (const matrixT& m, const size_t& pow)
+MAT_TEMPLATE matrixT operator^(const matrixT& m, const size_t& pow)
 {
 	matrixT temp(m);
 
@@ -510,10 +462,7 @@ operator ^ (const matrixT& m, const size_t& pow)
 	return temp;
 }
 
-
-// unary transpose operator
-MAT_TEMPLATE matrixT
-operator ~ (const matrixT& m)
+MAT_TEMPLATE matrixT operator~(const matrixT& m)
 {
 	matrixT temp(m.Col,m.Row);
 
@@ -522,14 +471,10 @@ operator ~ (const matrixT& m)
 		for (size_t j{}; j < m.Col; j++)
 			temp.Val[j][i] = m.Val[i][j];
 	}
-
 	return temp;
 }
 
-
-// unary inversion operator
-MAT_TEMPLATE matrixT
-operator ! (matrixT m)
+MAT_TEMPLATE matrixT operator!(matrixT m)
 {
 	if (m.Row != m.Col)
 		REPORT_ERROR( "matrixT::operator!: Inversion of a non-square matrix");
@@ -571,7 +516,6 @@ operator ! (matrixT m)
 	return temp;
 }
 
-// matrix inversion
 MAT_TEMPLATE void matrixT::Invert(matrixT& result)
 {
 	if (Row != Col)
@@ -614,9 +558,7 @@ MAT_TEMPLATE void matrixT::Invert(matrixT& result)
 	}
 }
 
-// solve simultaneous equation
-MAT_TEMPLATE matrixT
-matrixT::Solve (const matrixT& v) const
+MAT_TEMPLATE matrixT matrixT::Solve(const matrixT& v) const
 {
 	T a1;
 
@@ -659,16 +601,14 @@ matrixT::Solve (const matrixT& v) const
 	return s;
 }
 
-// set this matrix to unity
-MAT_TEMPLATE void
-matrixT::Unit ()
+MAT_TEMPLATE void matrixT::Unit()
 {
 	const size_t row{__min(Row,Col)};
 	Row = Col = row;
 
 	for (size_t i{}; i < Row; i++)
 		for (size_t j{}; j < Col; j++)
-		Val[i][j] = i == j ? T(1) : T(0);
+		Val[i][j] = i == j ? T(1) : T();
 	return;
 }
 
@@ -677,8 +617,7 @@ private partial pivoting method
 Starts at diagonal in given row, scans rows below, moves pivot row to diagonal
 @return pivotRow, 0 when pivot was already on diagonal, -1 when no pivot.
 *******************************************************************************/
-MAT_TEMPLATE int
-matrixT::pivot (size_t row)
+MAT_TEMPLATE int matrixT::pivot(size_t row)
 {
 	int pivRow{static_cast<int>(row)};
 	double amax{-1.0};
@@ -714,8 +653,7 @@ Starts at diagonal in given row, scans columns to the right, moves
  pivot column to diagonal position.
 @return pivotCol, 0 when pivot was already on diagonal, -1 when no pivot.
 *******************************************************************************/
-MAT_TEMPLATE int
-matrixT::pivotCol (size_t row)
+MAT_TEMPLATE int matrixT::pivotCol(size_t row)
 {
 	int pivCol{static_cast<int>(row)};
 	double amax{-1.0};
@@ -747,9 +685,7 @@ matrixT::pivotCol (size_t row)
 	return 0;
 }
 
-// calculate the determinant of a matrix
-MAT_TEMPLATE T
-matrixT::Det ()
+MAT_TEMPLATE T matrixT::Det()
 {
 	if (Row != Col)
 	{
@@ -819,9 +755,7 @@ MAT_TEMPLATE int matrixT::Rank()
 	return rank;
 }
 
-// calculate the norm of a matrix
-MAT_TEMPLATE T
-matrixT::Norm ()
+MAT_TEMPLATE T matrixT::Norm()
 {
 	T retVal{};
 	for (size_t i{}; i < Row; i++)
@@ -833,10 +767,7 @@ matrixT::Norm ()
 	return retVal;
 }
 
-
-// calculate the condition number of a matrix
-MAT_TEMPLATE T
-matrixT::Cond ()
+MAT_TEMPLATE T matrixT::Cond()
 {
 	matrixT inv(Row,Col);
 	inv = ! (*this);
@@ -844,9 +775,7 @@ matrixT::Cond ()
 	return retVal;
 }
 
-
-// calculate the cofactor of a matrix for a given element
-MAT_TEMPLATE T matrixT::Cofact (size_t row, size_t col)
+MAT_TEMPLATE T matrixT::Cofact(size_t row, size_t col)
 {
 	if (Row != Col)
 		REPORT_ERROR( "matrixT::Cofact(): Cofactor of a non-square matrix!");
@@ -875,9 +804,7 @@ MAT_TEMPLATE T matrixT::Cofact (size_t row, size_t col)
 	return cof;
 }
 
-
-// calculate adjoin of a matrix
-MAT_TEMPLATE matrixT matrixT::Adj ()
+MAT_TEMPLATE matrixT matrixT::Adj()
 {
 	if (Row != Col)
 		REPORT_ERROR( "matrixT::Adj(): Adjoin of a non-square matrix.");
@@ -892,129 +819,20 @@ MAT_TEMPLATE matrixT matrixT::Adj ()
 	return temp;
 }
 
-// Determine if the matrix is singular
-MAT_TEMPLATE bool
-matrixT::IsSingular ()
+MAT_TEMPLATE bool matrixT::IsSingular()
 {
-	if (Row != Col)
-		return false;
-	return (Det() == T(0));
+	return (Row != Col) || (Det() == T());
 }
 
-// Determine if the matrix is diagonal
-MAT_TEMPLATE bool
-matrixT::IsDiagonal ()
+MAT_TEMPLATE bool matrixT::IsNull()
 {
-	if (Row != Col)
-		return false;
-	for (size_t i{}; i < Row; i++)
-		for (size_t j{}; j < Col; j++)
-		if (i != j && Val[i][j] != T(0))
-		return false;
-	return true;
-}
-
-// Determine if the matrix is scalar
-MAT_TEMPLATE bool
-matrixT::IsScalar ()
-{
-	if (!IsDiagonal())
-		return false;
-	T v = Val[0][0];
-	for (size_t i{1}; i < Row; i++)
-		if (Val[i][i] != v)
-		return false;
-	return true;
-}
-
-// Determine if the matrix is a unit matrix
-MAT_TEMPLATE bool
-matrixT::IsUnit ()
-{
-	if (IsScalar() && Val[0][0] == T(1))
-		return true;
-	return false;
-}
-
-// Determine if this is a null matrix
-MAT_TEMPLATE bool
-matrixT::IsNull ()
-{
-	for (size_t i{}; i < Row; i++)
-		for (size_t j{}; j < Col; j++)
-		if (Val[i][j] != T(0))
-		return false;
-	return true;
-}
-
-// Determine if the matrix is symmetric
-MAT_TEMPLATE bool
-matrixT::IsSymmetric ()
-{
-	if (Row != Col)
-	{
-		return false;
-	}
-	for (size_t i{}; i < Row; i++)
-		for (size_t j{0}; j < Col; j++)
-			if (Val[i][j] != Val[j][i])
-				return false;
-	return true;
-}
-           
-// Determine if the matrix is skew-symmetric
-MAT_TEMPLATE bool
-matrixT::IsSkewSymmetric ()
-{
-	if (Row != Col)
-	{
-		return false;
-	}
 	for (size_t i{}; i < Row; i++)
 	{
 		for (size_t j{}; j < Col; j++)
+			if (Val[i][j] != T())
 		{
-			if (Val[i][j] != -Val[j][i])
-			{
-				return false;
-			}
+			return false;
 		}
-	}
-	return true;
-}
-   
-// Determine if the matrix is upper triangular
-MAT_TEMPLATE bool
-matrixT::IsUpperTiangular ()
-{
-	if (Row != Col)
-	{
-		return false;
-	}
-	for (size_t i{1}; i < Row; i++)
-	{
-		for (size_t j{}; j < i-1; j++)
-		{
-			if (Val[i][j] != T(0))
-				return false;
-		}
-	}
-	return true;
-}
-
-// Determine if the matrix is lower triangular
-MAT_TEMPLATE bool
-matrixT::IsLowerTiangular ()
-{
-	if (Row != Col)
-	{
-		return false;
-	}
-	for (size_t j{1}; j < Col; j++)
-	{
-		for (size_t i{}; i < j-1; i++)
-			if (Val[i][j] != T(0))
-				return false;
 	}
 	return true;
 }

@@ -1,14 +1,16 @@
 ; -- Kanon.iss, Innosetup Script --
+; 3.1.1: Built with D:\Qt\5.14.1\mingw73_64, dynamically linked.
+; See also D:\0\GitHub\kanon
 [Setup]
 AppName=Kanon
-AppVersion=3.1.0
+AppVersion=3.1.1
 WizardStyle=modern
 DefaultDirName={autopf}\Kanon
 DefaultGroupName=Kanon
 UninstallDisplayIcon={app}\Bin\Kanon.exe
 Compression=lzma2
 SolidCompression=yes
-OutputBaseFilename=Kanon_3.1.0_Setup
+OutputBaseFilename=Kanon_3.1.1_Setup
 LicenseFile=license.txt
 
 OutputDir=InnoOutput

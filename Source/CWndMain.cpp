@@ -45,7 +45,7 @@ namespace
 	const char* g_Settings0{"rid"};
 	const char* g_Settings1{"Kanon"};
 	const char* g_Settings2{"RecentFileList"};
-	const char* g_StrCritDim{"Crit.\ndim."};
+	const char* g_StrCritDim{"Critical dimension"};
 	const unsigned MaxNumCoordField{10};
 	enum
 	{
@@ -155,8 +155,9 @@ CWndMain::CWndMain(QWidget *parent)
 	m_Operators.push_back(new CMmlWdgtOperator(this, partial));
 	m_Operators.push_back(new CMmlWdgtOperator(this, delta));
 	m_Operators.push_back(new CMmlWdgtOperator(this, dgamma));
+	m_Operators.push_back(new CMmlWdgtOperator(this, sigma)); // also allowed as field
 	m_Operators.push_back(new CMmlWdgtOperator(this, times));
-	m_Operators.push_back(new CMmlWdgtOperator(this, otimes));
+	//m_Operators.push_back(new CMmlWdgtOperator(this, otimes)); obsolete!
 	m_Operators.push_back(new CMmlWdgtOperator(this, bullet));
 	m_Operators.push_back(new CMmlWdgtOperator(this, bra));
 	m_Operators.push_back(new CMmlWdgtOperator(this, ket));
@@ -482,7 +483,12 @@ void CWndMain::fileLoad(const string& pathname)
 		clear();
 		updateMml();
 		s_DefaultDirectory = extractPath(pathname).c_str();
-		model().loadData(pathname);
+		string errMsg;
+		model().loadData(pathname, errMsg);
+		if (!errMsg.empty())
+		{
+			msgBoxCritical(errMsg, this);
+		}
 		updateTitle();
 		m_TxtName->setText(model().name().c_str());
 		updateMml();

@@ -50,7 +50,7 @@ CDlgInput::CDlgInput(const QString& title, QWidget* parent, int widthHint,
   m_SignMap = new QSignalMapper(this);
   if (!textDefaultBtn.isEmpty())
   {
-    ::addButton(this, m_LayoutBtn, m_SignMap, textDefaultBtn, 0)->setDefault(true);
+    ::addButton(this, m_LayoutBtn, m_SignMap, textDefaultBtn, 0, "")->setDefault(true);
     connect(m_SignMap, SIGNAL(mapped(int)), this, SLOT(onButton(int)));
   }
 }

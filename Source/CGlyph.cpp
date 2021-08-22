@@ -72,33 +72,36 @@ namespace
 			p.drawText((x0 + xPos - rectTilde.width())/2, prevTop - rectTilde.bottom() - vGap, chTilde);
 			p.restore();
 		}
-		if (!chSuff.isNull() || !exponent.isEmpty())
+		if (!chSuff.isNull())
 		{
 			p.save();
 			QFont font(getFont(p));
 			font.setPointSize(int(font.pointSize()*0.7));
 			p.setFont(font);
 			const QFontMetrics fmSmall(getFont(p));
-			int x1{xPos}, x2{xPos};
-			if (!chSuff.isNull())
-			{
-				p.drawText(xPos, fmGlobal.descent(), chSuff);
-				x1 += fmSmall.horizontalAdvance(chSuff);
-			}
-			if (!exponent.isEmpty())
-			{
-				const QRect rect(fmSmall.boundingRect(QChar('1')));
-				p.drawText(xPos, fmGlobal.descent() - 1.2*rect.height(), exponent);
-				x2 += fmSmall.horizontalAdvance(exponent);
-			}
-			xPos = qMax(x1, x2);
+			p.drawText(xPos, fmGlobal.descent(), chSuff);
+			xPos += fmSmall.horizontalAdvance(chSuff);
 			p.restore();
 		}
 		if (primed)
 		{
+			p.save();
 			p.setFont(getFont(p));
 			CGlyphNeutral n1(ESymbol('\''));
 			n1.paint(p, xPos);
+			p.restore();
+		}
+		if (!exponent.isEmpty())
+		{
+			p.save();
+			QFont font(getFont(p));
+			font.setPointSize(int(font.pointSize()*0.7));
+			p.setFont(font);
+			const QFontMetrics fmSmall(getFont(p));
+			const QRect rect(fmSmall.boundingRect(QChar('1')));
+			p.drawText(xPos, fmGlobal.descent() - 1.2*rect.height(), exponent);
+			xPos += fmSmall.horizontalAdvance(exponent);
+			p.restore();
 		}
 	}
 }
@@ -116,7 +119,7 @@ bool hasCoordinate(ESymbol symb)
 /**
 *******************************************************************************/
 void CGlyphBase::initializeSymbolTable()
-{
+{	// Text is used for save/recall in *.kxm files.
 	g_Symbol2Text[none] = "";
 	g_Symbol2Text[a_] = "a";
 	g_Symbol2Text[A_] = "A";
@@ -129,6 +132,7 @@ void CGlyphBase::initializeSymbolTable()
 	g_Symbol2Text[h_] = "h";
 	g_Symbol2Text[I_] = "I";
 	g_Symbol2Text[j_] = "j";
+	g_Symbol2Text[k_] = "k";
 	g_Symbol2Text[l_] = "l";
 	g_Symbol2Text[m_] = "m";
 	g_Symbol2Text[M_] = "M";
@@ -180,6 +184,7 @@ void CGlyphBase::initializeSymbolTable()
 	g_Symbol2Text[Phi] = "Phi";
 	g_Symbol2Text[psi] = "psi";
 	g_Symbol2Text[Psi] = "Psi";
+	g_Symbol2Text[tau] = "tau";
 }
 
 /* METHOD *********************************************************************/
@@ -235,20 +240,24 @@ int CGlyphCoordinate::exponent(size_t ixColumn, const CModelData& mod) const
 	if (m_Symb == integral)
 	{
 		if (ixColumn != 0)
-		{	// The integral over the 1st coordinate is d-dimensional
+		{	// The integral over the 1st coordinate is d-dimensional.
 			return -1;
 		}
 	}
 	else if (m_Symb == delta)
 	{
 		if (ixColumn != 0)
-		{	// A delta-function with 1st coordinate is d-dimensional
+		{	// A delta-function with 1st coordinate is d-dimensional.
 			return 1;
 		}
 	}
 	else if (m_Symb == nabla || m_Symb == partial)
 	{
 		return m_Exponent;
+	}
+	else if (m_Symb == none)
+	{	// Convert coordinate to wave vector exponent.
+		return -m_Exponent;
 	}
 	return 0;
 }
@@ -268,7 +277,7 @@ int CGlyphCoordinate::exponentD() const
 		return -1;
 	}
 	else if (m_Symb == delta)
-	{
+	{	// Delta function
 		return 1;
 	}
 	return 0;
@@ -283,6 +292,13 @@ void CGlyphCoordinate::paint(QPainter& p, int& xPos) const
 	const SCoordFieldAttributes attrs(model().glyphCoord(m_CoordIndex).attrs());
 	switch (m_Symb)
 	{
+	case none:
+		{	// Koordinaten zulassen (z.B. Kondo-Modell).
+			const QString exponent(m_Exponent == 1 ? "" : QString::number(m_Exponent));
+			const QChar chSuff(attrs.m_Suffix < 0 ? 0 : attrs.m_Suffix + '0');
+			paintSymbol(p, xPos, attrs.m_Symb, exponent, chSuff, false, attrs.m_Tilde, attrs.m_Primed);
+		}
+		break;
 	case integral:
 		{
 			p.save();
@@ -291,7 +307,7 @@ void CGlyphCoordinate::paint(QPainter& p, int& xPos) const
 			font.setPointSize(int(font.pointSize()*1.2));
 			p.setFont(font);
 			CGlyphNeutral n1(integral, false);
- 			n1.paint(p, xPos);
+			n1.paint(p, xPos);
 			p.restore();
 			xPos -= 3;
 			const QString exponent(m_CoordIndex == 0 ? "d" : "");
@@ -306,11 +322,11 @@ void CGlyphCoordinate::paint(QPainter& p, int& xPos) const
 			const QString exponent(m_CoordIndex == 0 ? "d" : "");
 			paintSymbol(p, xPos, delta, exponent, QChar(), false, false, false);
 			CGlyphNeutral n1(bra, false);
- 			n1.paint(p, xPos);
+			n1.paint(p, xPos);
 			const QChar chSuff(attrs.m_Suffix < 0 ? 0 : attrs.m_Suffix + '0');
 			paintSymbol(p, xPos, attrs.m_Symb, "", chSuff, false, attrs.m_Tilde, attrs.m_Primed);
 			CGlyphNeutral n2(ket, false);
- 			n2.paint(p, xPos);
+			n2.paint(p, xPos);
 		}
 		break;
 	case nabla:
@@ -336,8 +352,6 @@ void CGlyphCoordinate::toXml(CXmlCreator& xml) const
 	xml.addAttrib("symbol", symbol2string(m_Symb));
 	xml.addAttribSkipEmpty("exponent", (m_Exponent == 0 || m_Exponent == 1) ? "" : toString(m_Exponent));
 	xml.createClose("Factor");
-	// m_ExponentCh;
-	// m_Suffix;
 }
 
 /* METHOD *********************************************************************/
@@ -354,7 +368,7 @@ CGlyphField::CGlyphField(int fieldIndex, int exponent)
 *******************************************************************************/
 CGlyphField::CGlyphField(QDomElement& elem)
 	: CGlyphBase()
-	, m_FieldIndex(0)
+	, m_FieldIndex()
 	, m_Exponent(1)
 {
 	string text(xmlRequireAttr(elem, "index"));
@@ -364,8 +378,6 @@ CGlyphField::CGlyphField(QDomElement& elem)
 	{
 		sscanf(text.c_str(), "%d", &m_Exponent);
 	}
-	//const string symbol(xmlGetAttr(fact, "symbol"));
-	//const string exponent(xmlGetAttr(fact, "exponent"));
 }
 
 /* METHOD *********************************************************************/
@@ -515,7 +527,7 @@ void CGlyphNeutral::paint(QPainter& p, int& xPos) const
 		p.setFont(font);
 	}
 	if (m_Symb == nabla)
-	{	// Workaround for windows 10, QTBUG-48945
+	{	// Workaround for windows 10, QTBUG-48945.
 		xPos++;
 		const int top{fmGlobal.boundingRect(QChar('x')).top()};
 		const int w1{int(fmGlobal.horizontalAdvance('x')*0.9)};
@@ -528,17 +540,6 @@ void CGlyphNeutral::paint(QPainter& p, int& xPos) const
 		p.drawLine(xPos, top, xPos + w1, top);
 		xPos += w1 + 1;
 	}
-#if 0
-	else if (m_Symb == otimes)
-	{	// Workaround for windows 10, QTBUG-48945
-		const QChar ch(static_cast<ushort>(times));
-		xPos++;
-		p.drawText(xPos,0, ch);
-		const QRect rect(fmGlobal.boundingRect(QChar(times)));
-		p.drawEllipse(rect.translated(xPos-1, 0));
-		xPos += fmGlobal.horizontalAdvance(ch);
-	}
-#endif
 	else
 	{
 		const QChar ch(static_cast<ushort>(m_Symb));

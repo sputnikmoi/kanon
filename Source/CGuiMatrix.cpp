@@ -42,6 +42,16 @@ namespace
 			QApplication::restoreOverrideCursor();
 		}
 	};
+	QString toolTipExtraTerm()
+	{
+		return QString(
+			"The canonical dimensions of coordinates,\n"
+			"fields and the coupling constant are determined from\n"
+			"the first " + QString::number(model().modelOrder()) + " rows.\n"
+			"This extra row might be relevant, irrelevant or marginal.\n"
+			"To use this term directly you might draw it upwards."
+			);
+	}
 }
 
 const unsigned CGuiMatrix::s_BgColorExtra {0xF0F5FF}; // Bg color of extra terms
@@ -85,6 +95,7 @@ public:
 		const int rxInteraction{guiMatrix().getRxInteraction()};
 		const bool rxSingular{guiMatrix().isRxInteractionSingular()};
 		const bool hasCoupConst{!guiMatrix().isDotRow(row) && (row == rxInteraction || row >= int(model().modelOrder()))};
+		const bool isNormalRow{row < int(model().modelOrder())};
 		switch (role)
 		{
 		case Qt::DisplayRole:
@@ -105,12 +116,11 @@ public:
 			break;
 		case Qt::BackgroundRole:
 			{
-				const bool isNormal{row < int(model().modelOrder())};
-				if (col == colIndex && isNormal && row == rxInteraction && rxSingular)
+				if (col == colIndex && isNormalRow && row == rxInteraction && rxSingular)
 				{
 					return QColor(Qt::red);
 				}
-				return QColor(isNormal ? CGuiMatrix::s_BgColorNormal : CGuiMatrix::s_BgColorExtra);
+				return QColor(isNormalRow ? CGuiMatrix::s_BgColorNormal : CGuiMatrix::s_BgColorExtra);
 			}
 		case Qt::ToolTipRole:
 			if (col == colDimension)
@@ -120,7 +130,7 @@ public:
 					"Only one of the first " + toString(int(model().modelOrder())) + " terms\n"
 					"(the selected one) has a coupling constant.\n\n"
 					"Terms with a negative coupling constant dimension\n"
-					"of order O(1) are 'irrelevant' in critical dynamics."
+					"of order O(1) are 'irrelevant' in critical statics or dynamics."
 					).c_str();
 			}
 			else if (col == colIndex)
@@ -136,33 +146,28 @@ public:
 				}
 				else if (!guiMatrix().isDotRow(row))
 				{
-					return QString(
-						"The canonical dimensions of coordinates,\n"
-						"fields and the coupling constant are determined from\n"
-						"the first " + QString::number(model().modelOrder()) + " rows.\n"
-						"This extra row might be relevant, irrelevant or marginal.\n"
-						"To use this term directly you might draw it upwards."
-						);
-					break;
-				case Qt::FontRole:
-					if (col == colIndex && row == rxInteraction)
-					{
-						QFont fnt;
-						fnt.setBold(true);
-						fnt.setItalic(true);
-						return fnt;
-					}
-				default: break;
+					return toolTipExtraTerm();
 				}
 			}
 			else if (col == colComment && guiMatrix().comment(row).empty())
 			{
 				return QString("Click to edit the row comment.");
 			}
-			else
+			else if (col == colFormula && !isNormalRow && !guiMatrix().isDotRow(row))
 			{
-				return QString();
+				return toolTipExtraTerm();
 			}
+			break;
+		case Qt::FontRole:
+			if (col == colIndex && row == rxInteraction)
+			{
+				QFont fnt;
+				fnt.setBold(true);
+				fnt.setItalic(true);
+				return fnt;
+			}
+			break;
+		default: break;
 		} // switch(role)
 		return QVariant(); 
 	}
@@ -567,8 +572,8 @@ void CGuiMatrix::deleteCoord(size_t index)
 	{
 		if (wdgtRow->formula().containsCoord(index))
 		{
-			if (yesNo(m_TableView, "Coordinate still used in the Lagrangian.\n"
-				"Delete and remove all references?", "Delete coordinate"))
+			if (yesNo(m_TableView, "The coordinate still is used in the Lagrangian.\n"
+				"Delete it and remove all references?", "Delete coordinate"))
 			{
 				break;
 			}

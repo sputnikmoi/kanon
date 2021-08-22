@@ -39,6 +39,7 @@ enum ESymbol
 	f_ = 'f',
 	F_ = 'F',
 	j_ = 'j',
+	k_ = 'k',
 	m_ = 'm',
 	M_ = 'M',
 	n_ = 'n',
@@ -67,6 +68,7 @@ enum ESymbol
 	theta = 0x3B8,
 	jota = 0x3B9,
 	kappa = 0x3BA,
+	tau = 0x3C4,
 	lambda = 0x3BB,
 	mu = 0x3BC,
 	xi = 0x3BE,
@@ -75,7 +77,6 @@ enum ESymbol
 	sigma = 0x3C3,
 	phi = 0x3C6,
 	Phi = 0x3A6,
-	//ch = 0x3C7,
 	psi = 0x3c8,
 	Psi = 0x3A8
 };
@@ -126,6 +127,8 @@ public:
 	virtual void incExponent(int) {}
 	virtual int exponent(size_t /*ixColumn*/, const CModelData&) const { return 0; }
 	virtual int exponentD() const { return 0; }
+	virtual bool hasValidCoordIndex(size_t) const { return true; }
+	virtual bool hasValidFieldIndex(size_t) const { return true; }
 };
 
 /* CLASS DECLARATION **********************************************************/
@@ -161,11 +164,12 @@ public:
 	CGlyphField(int fieldIndex, int exponent = 1);
 	CGlyphField(QDomElement&);
 	CGlyphBase* clone() override { return new CGlyphField(*this); }
-	int  fieldIndex() const { return m_FieldIndex; }
 	int  exponent(size_t ixColumn, const CModelData&) const override;
 	void paint(QPainter&, int& xPos) const override;
 	void toXml(CXmlCreator&) const override;
 	void incExponent(int delta) override { CGlyphBase::incExponent(m_Exponent, delta, -1); }
+	int  fieldIndex() const { return m_FieldIndex; }
+	bool hasValidFieldIndex(size_t vectSize) const override { return m_FieldIndex < int(vectSize); }
 	void decIndex() { m_FieldIndex--; }
 	void setIndex(int fx) { m_FieldIndex = fx; }
 };
@@ -187,13 +191,14 @@ public:
 	CGlyphCoordinate(QDomElement&);
 	CGlyphBase* clone() override { return new CGlyphCoordinate(*this); }
 	int  coordIndex() const { return m_CoordIndex; }
+	bool hasValidCoordIndex(size_t vectSize) const override { return m_CoordIndex < int(vectSize); }
 	void paint(QPainter&, int& xPos) const override;
 	void toXml(CXmlCreator&) const override;
 	void incExponent(int delta) override { CGlyphBase::incExponent(m_Exponent, delta, -4); }
-	void decIndex() { m_CoordIndex--; }
-	void setIndexToDefault() { m_CoordIndex = 0; }
 	int  exponent(size_t ixColumn, const CModelData&) const override;
 	int  exponentD() const override;
+	void decIndex() { m_CoordIndex--; }
+	void setIndexToDefault() { m_CoordIndex = 0; }
 };
 
 /* CLASS DECLARATION **********************************************************/

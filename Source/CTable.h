@@ -16,7 +16,6 @@ using std::string;
 #define PK_NULL 0U // Invalid
 #define PK_ROOT 1U // If a root element is required
 
-
 /* CLASS DECLARATIONS *********************************************************/
 class QDomElement;
 
@@ -28,36 +27,35 @@ template <typename TTable> class CQTableModel : public QAbstractTableModel
 {
 public:
   CQTableModel() : QAbstractTableModel() {}
-  QVariant headerData (int col, Qt::Orientation orientation, int role) const
+  QVariant headerData(int col, Qt::Orientation orientation, int role) const override
   {
     return TTable::headerData(col, orientation, role);
   }
-  int rowCount(const QModelIndex&) const { return TTable::size(); }
-  int columnCount(const QModelIndex&) const { return TTable::columnCount(); }
-  QVariant data(const QModelIndex &index, int role) const
+  int rowCount(const QModelIndex&) const override { return int(TTable::size()); }
+  int columnCount(const QModelIndex&) const override { return TTable::columnCount(); }
+  QVariant data(const QModelIndex& index, int role) const override
   {
     return TTable::data(index, role);
   }
-  void sort(int column, Qt::SortOrder order = Qt::AscendingOrder)
+  void sort(int column, Qt::SortOrder order = Qt::AscendingOrder) override
   {
     if (!TTable::empty())
     {
       beginResetModel();/**/
       if (TTable::getTableView())
       {
-        for (unsigned ix(0); ix < TTable::size(); ix++)
-        {
-          // Store visibility, to restore it after sort
-          TTable::at(ix).m_Hidden = TTable::getTableView()->isRowHidden(ix);
+        for (size_t ix{}; ix < TTable::size(); ix++)
+        { // Store visibility, to restore it after sort.
+          TTable::at(ix).m_Hidden = TTable::getTableView()->isRowHidden(int(ix));
         }
       }
-      const unsigned pk(TTable::selectedPk());
+      const unsigned pk{TTable::selectedPk()};
       TTable::sort(column, order);
       if (TTable::getTableView())
       {
-        for (unsigned ix(0); ix < TTable::size(); ix++)
+        for (size_t ix{}; ix < TTable::size(); ix++)
         {
-          TTable::getTableView()->setRowHidden(ix, TTable::at(ix).m_Hidden);
+          TTable::getTableView()->setRowHidden(int(ix), TTable::at(ix).m_Hidden);
         }
       }
       endResetModel();/**/
@@ -66,8 +64,8 @@ public:
   }
   void updateView()
   {
-    beginResetModel();/**/
-    endResetModel();/**/
+    beginResetModel();
+    endResetModel();
   }
 };
 
@@ -75,18 +73,19 @@ public:
 /**
   Template base class for tables.
   Contains a vector with row data, provides access methods.
-  //Contains a reference to a CQTableModel.
 *******************************************************************************/
 template <typename TRow> class CTable
 {
   static CQTableModel<TRow>* s_TableModel;
   static QTableView* s_TableView;
   static QString s_ColumnCaptions; // Separated with '|'
+protected:
   static std::vector<TRow> s_Array;// Table data
   static string s_Name;            // Table name
 public:
   unsigned Pk;      // Primary key
-  unsigned m_OrgPk; // Used to tag records for export and similiar purposes
+  unsigned m_OrgPk; // Used to tag records for export and similiar purposes.
+  bool m_Tag;       // Available for various purposes.
   bool m_Hidden;
   static int s_SortColumn; // Column index
   static QAbstractTableModel* getTableModel()
@@ -99,18 +98,18 @@ public:
   }
   static void setTableView(QTableView* view) { s_TableView = view; }
   static QTableView* getTableView() { return s_TableView; }
-  static void setRowHidden(int row, bool hidden)
+  static void setRowHidden(size_t row, bool hidden)
   {
-    getTableView()->setRowHidden(row, at(row).m_Hidden = hidden);
+    getTableView()->setRowHidden(int(row), at(row).m_Hidden = hidden);
   }
   static void selectRowByPk(unsigned pk)
   {
     if (s_TableView)
     {
-      unsigned index;
+      size_t index;
       if (get(pk, &index))
       {
-        s_TableView->selectRow(index);
+        s_TableView->selectRow(int(index));
       }
     }
   }
@@ -121,7 +120,7 @@ public:
       const QModelIndex index(s_TableView->currentIndex());
       return &at(index.row());
     }
-    return 0;
+    return nullptr;
   }
   static unsigned selectedPk()
   {
@@ -136,10 +135,10 @@ public:
   {
     return s_ColumnCaptions.section('|', col, col);
   }
-  CTable(): Pk(PK_NULL), m_OrgPk(PK_NULL),m_Hidden(false) {}
+  CTable(): Pk(PK_NULL), m_OrgPk(PK_NULL), m_Tag(), m_Hidden() {}
   virtual bool okToImport() { return true; }
   static int sortColumn(int val = -1) { if (val >= 0) s_SortColumn = val; return s_SortColumn; }
-  static unsigned size()
+  static size_t size()
   {
     return s_Array.size();
   }
@@ -151,9 +150,9 @@ public:
     {
       return false;
     }
-    for (unsigned ix(0); ix < s_Array.size(); ix++)
+    for (const auto& elem : s_Array)
     {
-      if (s_Array[ix].Pk == row.Pk)
+      if (elem.Pk == row.Pk)
       {
         return false;
       }
@@ -161,9 +160,9 @@ public:
     s_Array.push_back(row);
     return true;
   }
-  static TRow* get(unsigned pk, unsigned* index = 0)
+  static TRow* get(unsigned pk, size_t* index = nullptr)
   {
-    if (pk > 0) for (unsigned ix(0); ix < s_Array.size(); ix++) if (s_Array[ix].Pk == pk)
+    if (pk > 0) for (size_t ix{}; ix < s_Array.size(); ix++) if (s_Array[ix].Pk == pk)
     {
       if (index)
       {
@@ -173,23 +172,23 @@ public:
     }
     if (index)
     {
-      *index = 0xFFFFFFFF;
+      *index = size();
     }
-    return 0;
+    return nullptr;
   }
-  static TRow& at(unsigned ix) { return s_Array[ix]; }
-  static void erase(unsigned ix)
+  static TRow& at(size_t ix) { return s_Array[ix]; }
+  static void erase(size_t ix)
   {
     if (ix < s_Array.size())
     {
-      s_Array.erase(s_Array.begin() + ix);
+      s_Array.erase(begin(s_Array) + ix);
     }
   }
   static bool del(unsigned pk)
   {
-    for (unsigned ix(0); ix < s_Array.size(); ix++) if (s_Array[ix].Pk == pk)
+    for (size_t ix{}; ix < s_Array.size(); ix++) if (s_Array[ix].Pk == pk)
     {
-      s_Array.erase(s_Array.begin() + ix);
+      s_Array.erase(begin(s_Array) + ix);
       return true;
     }
     return false;
@@ -198,10 +197,10 @@ public:
   {
     s_Array.clear();
   }
-  static unsigned count(unsigned fk)
+  static size_t count(unsigned fk)
   {
-    unsigned val(0);
-    for (unsigned ix(0); ix < s_Array.size(); ix++) if (s_Array[ix].fk() == fk)
+    size_t val{};
+    for (size_t ix{}; ix < s_Array.size(); ix++) if (s_Array[ix].fk() == fk)
     {
       val++;
     }
@@ -209,11 +208,11 @@ public:
   }
   static unsigned createPk(const std::vector<TRow>& vect)
   {
-    unsigned pk(PK_NULL);
+    unsigned pk{PK_NULL};
     for (;;)
     {
       pk = createRandomKey();
-      unsigned ix(0);
+      size_t ix{};
       for (; ix < vect.size(); ix++)
       {
         if (pk == vect.at(ix).Pk)
@@ -229,14 +228,14 @@ public:
     return pk;
   }
   static unsigned create(TRow& row)
-  {
+  { // row only is a copy after push_back()!
     row.Pk = createPk(s_Array);
     s_Array.push_back(row);
     return row.Pk;
   }
   static unsigned prev(unsigned pk)
   {
-    unsigned index;
+    size_t index;
     if (0 != get(pk, &index))
     {
       if (index < size())
@@ -248,9 +247,9 @@ public:
   }
   static void getNewFokusPk(unsigned& fokusPk, int row) // BEFORE erase(row). Qt4 sets RowHidden to false during update!
   {
-    for (unsigned hx(0); hx < size(); hx++)
+    for (size_t hx{}; hx < size(); hx++)
     {
-      at(hx).m_Hidden = getTableView()->isRowHidden(hx);
+      at(hx).m_Hidden = getTableView()->isRowHidden(int(hx));
     }
     int rx(row + 1);
     for (; rx < isize() && at(rx).m_Hidden; rx++) {}
@@ -264,18 +263,28 @@ public:
       fokusPk = at(rx).Pk;
     }
   }
+  static void clearTags()
+  {
+    for (auto& elem : s_Array)
+    {
+      elem.m_Tag = false;
+    }
+  }
   static std::vector<TRow>& array() { return s_Array; }
+  void setTag()
+  {
+    m_Tag = true;
+  }
 };
 
 // Use this makro to define a table by initializing the static CTable members.
 // Column-caption separator is '|'. The number of captions also determines the number of columns.
 #define DECLARE_TABLE(className, tableName, columnCaptions) \
-  static std::vector<className> g_Dummy; \
-  template <> std::vector<className>   CTable<className>::s_Array(g_Dummy); \
+  template <> std::vector<className> CTable<className>::s_Array{}; \
   template <> string CTable<className>::s_Name(tableName); \
-  template <> QTableView* CTable<className>::s_TableView(0); \
-  template <> QString CTable<className>::s_ColumnCaptions(columnCaptions); \
+  template <> QTableView* CTable<className>::s_TableView{}; \
+  template <> QString CTable<className>::s_ColumnCaptions{columnCaptions}; \
   template <> int CTable<className>::s_SortColumn(-1); \
-  template <> CQTableModel<className>* CTable<className>::s_TableModel(new CQTableModel<className>);
+  template <> CQTableModel<className>* CTable<className>::s_TableModel{new CQTableModel<className>};
 
 #endif

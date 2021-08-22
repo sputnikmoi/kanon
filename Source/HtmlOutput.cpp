@@ -33,6 +33,7 @@ namespace
 		ret = replace(ret, "Phi", "&Phi;", NUM_REP, true);
 		ret = replace(ret, "psi", "&psi;", NUM_REP, true);
 		ret = replace(ret, "Psi", "&Psi;", NUM_REP, true);
+		ret = replace(ret, "sigma", "&sigma;", NUM_REP, true);
 		 
 		ret = replace(ret, "^2", "<sup>2</sup>", NUM_REP);
 		ret = replace(ret, "^3", "<sup>3</sup>", NUM_REP);

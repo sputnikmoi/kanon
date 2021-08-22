@@ -23,7 +23,7 @@ CMmlWdgtRow* CMmlWdgtRow::s_DragCandidate;
 *******************************************************************************/
 CMmlWdgtRow::CMmlWdgtRow(QWidget* parent)
 	: CMmlWdgtBase(parent)
-	, m_IsDotRow(false)
+	, m_IsDotRow()
 {
 	m_Formula.allowCursor(!m_IsDotRow);
 	setAcceptDrops(true);
@@ -278,6 +278,7 @@ void CMmlWdgtRow::dragEnterEvent(QDragEnterEvent* ev)
 {
 	const QMimeData* md{ev->mimeData()};
 	if (md->hasFormat(MimeFormat::Field) || md->hasFormat(MimeFormat::Operator)
+		|| md->hasFormat(MimeFormat::Coord)
 		|| (md->hasFormat(MimeFormat::Row) && !m_IsDotRow))
 	{
 		ev->acceptProposedAction();
@@ -313,7 +314,23 @@ void CMmlWdgtRow::dropEvent(QDropEvent* ev)
 			updateMml();
 			model().setDirty();
 			guiMatrix().determineCriticalDimension();
-			//=======
+			m_Formula.setCsrToEnd();
+			CMmlWdgtBase::setFocus(true);
+			guiMatrix().setFocusToItem(this);
+			setFocus(true);
+		}
+	}
+	else if (ev->mimeData()->hasFormat(MimeFormat::Coord))
+	{	// Append/insert coordinate (only in special cases. Normally only operators!).
+		bool ok;
+		const int coordIndex{ev->mimeData()->data(MimeFormat::Coord).toInt(&ok)};
+		if (ok)
+		{
+			ev->acceptProposedAction();
+			addToFormula(new CGlyphCoordinate(coordIndex, ESymbol::none));
+			updateMml();
+			model().setDirty();
+			guiMatrix().determineCriticalDimension();
 			m_Formula.setCsrToEnd();
 			CMmlWdgtBase::setFocus(true);
 			guiMatrix().setFocusToItem(this);
@@ -321,7 +338,7 @@ void CMmlWdgtRow::dropEvent(QDropEvent* ev)
 		}
 	}
 	else if (ev->mimeData()->hasFormat(MimeFormat::Operator))
-	{	// Append/insert operator
+	{	// Append/insert operator.
 		bool ok;
 		const int iVal{ev->mimeData()->data(MimeFormat::Operator).toInt(&ok)};
 		if (ok)

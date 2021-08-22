@@ -75,7 +75,7 @@ void CMmlWdgtCoordField::updateVisibility()
 		setVisible((coord && m_IndexInModel <= model().numCoord()) || (!coord && m_IndexInModel <= model().numField()));
 		setVisible(true); // New expression invisibly small without this ??  /**/
 		QString strTt("Click to add another " + strType() + " to the model.");
-		strTt += "\n\nThis means that the wave vector \n"
+		strTt += "\nThis implies that the wave vector \n"
 			"dimension of one more " + strType() + " is to be determined,\n"
 			"which requires one more term in the Lagrangian.";
 		setToolTip(strTt);
@@ -93,12 +93,13 @@ void CMmlWdgtCoordField::updateVisibility()
 		{
 			setToolTip(comment + "- Click to edit the coordinate.\n"
 				"- Drag the coordinate onto an operator (2 lines below)\n"
-				"   to use the coordinate.");
+				"       as a first step for using the coordinate in the Lagrangian.\n"
+				"- Drag the the coordinate directly to a term of the\n       Lagrangian below (only in special cases).");
 		}
 		else
 		{
 			setToolTip(comment + "- Click to edit the field.\n"
-				"- Add the field to a term of the\n   Lagrangian below by drag and drop.");
+				"- Add the field to a term of the\n       Lagrangian below by drag and drop.");
 		}
 	}
 }

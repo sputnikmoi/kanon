@@ -28,6 +28,7 @@ public:
   CFormula(const CFormula&);
   CFormula& operator=(const CFormula&);
   ~CFormula();
+  std::string validate(const CModelData&) const;
   void add(CGlyphBase*);
   void clear();
   int  paint(QPainter&);

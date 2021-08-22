@@ -9,13 +9,6 @@ classes {
 	CMmlWdgtRow : CMmlWdgtBase
 	CMmlWdgtBase : QWidget
 }
-Qt4: Odysse: Bauen unter Windows { -
-	Command: d:\qt\Qt-4.7.3-dev-lite-msvc2010-rs\Qt-4.7.3-dev-lite-msvc2010-rs\bin\qmake.exe -o Makefile Kanon.pro
-	Grundsaetzlich nur STATISCH gelinktes Qt verwenden, sonst Dll-Hoelle nach Installation.
-	In Qt-4.7.3-dev-msvc2010-rds steht das "s" fuer STATIC.
-	Das hat dann doch geklappt: set QTDIR=D:\qt\Qt-4.7.3-dev-msvc2010-rds
-	VIELLEICHT wuerde es dann auch mit MinGw und Qt5 klappen?
-}
 Qt5 und MinGw {
 	Qt5.14.1 bringt in D:\Qt\Tools\mingw730_64\bin mingw schon mit!//
 	Dies ist allerdings dynamisch gelinkt, dlls und plugins muessen ins Setup.
@@ -25,4 +18,30 @@ Qt5 und MinGw {
 		path=%path%;%QTDIR%\bin;%MINGW_BIN%
 	}
 }
+Koordinate direkt in Faktor/Monomial zulassen { !
+	Neben Integral und Ableitung kann eine Koordinate auch direkt vorkommen (z.B. in einer Variante des Kondo-Modells).
+	Dies sollte per ESymbol realisiert werden, am Einfachsten als ESymbol::none. //
+	CGlyphCoordinate::m_Symb. //
+	Die einzige Änderungen sind { -
+		1) Anzeige der Koordinate.//
+		2) Drag von Koordinate zulassen.//
+		3) Koordinate kann (wie ein Feld) Exponenten haben//
+		4) Laden/Speichern //
+		5) Dimensionswert bei Auswertung.//
+		6) Print Result OK? (nichts zu tun)//
+	}
+}
+Wellenvektor anstelle von Koordinate { ?
+	Konfusion bei Interpretation { !
+		Dimension der Koordinate sollte dieselbe sein? -
+		Was ist dann aber mit den anderen Größen? $
+		Es treten ja die FT der Felder auf -
+		Und auch andere Koordinaten/Felder sind umzuinterpretieren.
+		The algebra determining the scaling dimensions and the critical dimension also works in wave vector space.
+		However, the convention of assigning a (wave vector) dimension of -1 to the d-dimensional (first) coordinate then implies,
+		that the calculated scaling dimensions are coordinate (and not wave vector) dimensions.
+		And of course, scaling dimensions of fields and fourier transforms of fields differ by a value d.
+	}
+}
+
 

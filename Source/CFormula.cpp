@@ -4,6 +4,7 @@
 #include <QtXml/QDomNode>
 #include "CFormula.h"
 #include "CGlyph.h"
+#include "CModelData.h"
 #include "CXmlCreator.h"
 #include "Util.h"
 
@@ -70,6 +71,22 @@ CFormula& CFormula::operator=(const CFormula& rhs)
 		}
 	}
 	return *this;
+}
+
+/* METHOD *********************************************************************/
+/**
+@return Error message or empty
+*******************************************************************************/
+string CFormula::validate(const CModelData& mod) const
+{
+	for (const auto& glyph : m_Formula)
+	{
+		if (!glyph->hasValidCoordIndex(mod.numCoord()) || !glyph->hasValidFieldIndex(mod.numField()))
+		{
+			return "Invalid coordinate or field index in " + mod.pathname();
+		}
+	}
+	return "";
 }
 
 /* METHOD *********************************************************************/

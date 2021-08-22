@@ -45,6 +45,7 @@ public:
 		colNumCoord, colNumField, colOrder, colDimension, colNormalVect, colName, colTag, colFlags
 	};
 	CModelData(bool isSingleton = false);
+	void insertDefaultCoordField();
 	bool determineCritDim(double& critDim);
 	bool determineCanonicalDimensions(size_t rxOfCoupling);
 	bool dirty() const { return m_Dirty; }
@@ -71,8 +72,8 @@ public:
 	bool makeClean();
 	double critDim() const { return m_CritDim; }
 	void setDirty();
-	void loadData(const std::string& pathname);
-	bool saveData(QWidget* = 0, const std::string& pathname = "");
+	void loadData(const std::string& pathname, std::string& errMsg);
+	bool saveData(QWidget* = nullptr, const std::string& pathname = "");
 	std::string name() const { return m_Name; }
 	size_t numTerm() const;
 	size_t modelOrder() const;
